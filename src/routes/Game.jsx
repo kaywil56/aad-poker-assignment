@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { Navigate } from "react-router-dom";
+import AuthContext from "../AuthContext";
 
 const Game = () => {
   const HAND_LENGTH = 5;
 
+  const { authContext } = useContext(AuthContext)
   const [hand, setHand] = useState(initializeDeck());
 
   function initializeDeck() {
@@ -19,6 +22,11 @@ const Game = () => {
     }
 
     return deck;
+  }
+  
+  // Protect route
+  if (!authContext.uid) {
+    return <Navigate to="/" />;
   }
 
   return (
