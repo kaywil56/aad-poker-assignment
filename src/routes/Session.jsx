@@ -1,19 +1,24 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import AuthContext from "../AuthContext";
 import { Navigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
-import { createSession } from "../firestore.functions";
+import { createGame, getGames } from "../firestore.functions";
 
 const Session = () => {
   const { authContext } = useContext(AuthContext);
   const auth = getAuth();
   const [gameName, setGameName] = useState("");
+  const [games, setGames] = useState([]);
 
-  const handleCreateSession = (e) => {
+  const handleCreateGame = (e) => {
     e.preventDefault();
-    createSession(gameName, authContext.uid);
+    createGame(gameName, authContext.uid);
     setGameName("")
   };
+
+  useEffect(() => {
+    getGames(setGames)
+  }, [])
 
   // Protect route
   if (!authContext.uid) {
@@ -23,7 +28,7 @@ const Session = () => {
   return (
     <>
       <h2>Create Session</h2>
-      <form action="submit" onSubmit={handleCreateSession}>
+      <form action="submit" onSubmit={handleCreateGame}>
         <input
           onChange={(e) => setGameName(e.target.value)}
           type="text"
@@ -34,9 +39,9 @@ const Session = () => {
       </form>
       <h2>Join Session</h2>
       <ul>
-        <li>Game 1</li>
-        <li>Game 2</li>
-        <li>Game 3</li>
+        {games.map((game, idx) => {
+            return <li key={idx}>{game.name}</li>
+        })}
       </ul>
       {/* just leaving this here for the moment */}
       <button onClick={() => signOut(auth)}>Sign out</button>
