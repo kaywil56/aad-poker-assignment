@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import AuthContext from "../AuthContext";
 import { Navigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
-import { createGame, getGames } from "../firestore.functions";
+import { createGame, getGames, joinGame } from "../firestore.functions";
 
 const Session = () => {
   const { authContext } = useContext(AuthContext);
@@ -15,6 +15,10 @@ const Session = () => {
     createGame(gameName, authContext.uid);
     setGameName("")
   };
+
+  const handleJoinGame = (gameId) => {
+    joinGame(authContext.uid, gameId)
+  }
 
   useEffect(() => {
     getGames(setGames)
@@ -40,7 +44,7 @@ const Session = () => {
       <h2>Join Session</h2>
       <ul>
         {games.map((game, idx) => {
-            return <li key={idx}>{game.name}</li>
+            return <li key={idx}>{game.name} <button onClick={e => handleJoinGame(game.id)}>Join</button></li>
         })}
       </ul>
       {/* just leaving this here for the moment */}
