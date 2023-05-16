@@ -1,4 +1,4 @@
-import { addDoc, collection, query, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, query, onSnapshot, doc, setDoc } from "firebase/firestore";
 import firestore from "../firestore";
 
 export const createGame = (gameName, ownerId) => {
@@ -6,6 +6,7 @@ export const createGame = (gameName, ownerId) => {
   const newGameDocRef = addDoc(gameCollectionRef, {
     owner: ownerId,
     name: gameName,
+    started: false,
   });
 
   // Auto join self to game
@@ -34,6 +35,14 @@ export const getGames = (setGames) => {
 };
 
 export const joinGame = (userId, gameId) => {
+  const playersDocRef = doc(firestore, "games", gameId, "players", userId);
+
+  setDoc(playersDocRef, {
+    playerId: userId,
+  });
+};
+
+export const getPlayers = (gameId, setPlayers) => {
   const playersCollectionRef = collection(
     firestore,
     "games",
@@ -41,7 +50,17 @@ export const joinGame = (userId, gameId) => {
     "players"
   );
 
-  addDoc(playersCollectionRef, {
-    playerId: userId,
+  const playersQuery = query(playersCollectionRef);
+
+  const unsubscribe = onSnapshot(playersQuery, (querySnapshot) => {
+    const players = [];
+    querySnapshot.forEach((doc) => {
+      players.push({
+        id: doc.id,
+        playerId: doc.data().playerId,
+      });
+    });
+    setPlayers(players);
   });
+  return () => unsubscribe();
 };
