@@ -1,11 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../AuthContext";
+import GameContext from "../GameContext";
 import { Navigate, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { createGame, getGames, joinGame } from "../firestore.functions";
 
 const Session = () => {
   const { authContext } = useContext(AuthContext);
+  const { currentGameContext, setCurrentGameContext } = useContext(GameContext);
+
   const auth = getAuth();
   const navigate = useNavigate();
   const [gameName, setGameName] = useState("");
@@ -13,20 +16,27 @@ const Session = () => {
 
   const handleCreateGame = async (e) => {
     e.preventDefault();
-    await createGame(gameName, authContext.uid);
-    navigate("/waiting", {
-      state: { gameId: gameId },
+    let gameId = createGame(gameName, authContext.uid);
+    joinGame(authContext.uid, gameId);
+    setCurrentGameContext({
+      gameId: gameId,
+      started: false,
     });
+    navigate("/waiting");
     setGameName("");
   };
 
   const handleJoinGame = (gameId) => {
     joinGame(authContext.uid, gameId);
-    navigate("/waiting", { state: { gameId: gameId } });
+    setCurrentGameContext({
+      gameId: gameId,
+      started: false,
+    });
+    navigate("/waiting");
   };
 
   useEffect(() => {
-    getGames(setGames);
+    getGames(setGames, currentGameContext, setCurrentGameContext);
   }, []);
 
   // Protect route
@@ -51,7 +61,7 @@ const Session = () => {
         {games.map((game, idx) => {
           return (
             <li key={idx}>
-              {game.name}{" "}
+              {`${game.name} ${game.started}`}
               <button onClick={() => handleJoinGame(game.id)}>Join</button>
             </li>
           );

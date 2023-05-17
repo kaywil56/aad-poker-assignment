@@ -1,4 +1,12 @@
-import { addDoc, collection, query, onSnapshot, doc, setDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  query,
+  onSnapshot,
+  doc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import firestore from "../firestore";
 
 export const createGame = (gameName, ownerId) => {
@@ -11,11 +19,15 @@ export const createGame = (gameName, ownerId) => {
 
   // Auto join self to game
   newGameDocRef.then((doc) => {
-    joinGame(ownerId, doc.id);
+    return doc.id;
   });
 };
 
-export const getGames = (setGames) => {
+export const getGames = (
+  setGames,
+  currentGameContext,
+  setCurrentGameContext
+) => {
   const gameCollectionRef = collection(firestore, "games");
 
   const gamesQuery = query(gameCollectionRef);
@@ -26,10 +38,20 @@ export const getGames = (setGames) => {
       games.push({
         id: doc.id,
         name: doc.data().name,
-        owner: doc.data().owner,
+        started: doc.data().started,
       });
     });
     setGames(games);
+
+    // if the player has joined a game and the game is started update values
+    const currentGame = games.find(
+      (game) => game.gameId === currentGameContext.gameId
+    );
+
+    if (currentGame?.started) {
+      currentGameContext.started = true;
+      setCurrentGameContext(currentGameContext);
+    }
   });
   return () => unsubscribe();
 };
@@ -39,6 +61,14 @@ export const joinGame = (userId, gameId) => {
 
   setDoc(playersDocRef, {
     playerId: userId,
+  });
+};
+
+export const startGame = (gameId) => {
+  const gameDocRef = doc(firestore, "games", gameId);
+
+  updateDoc(gameDocRef, {
+    started: true,
   });
 };
 
