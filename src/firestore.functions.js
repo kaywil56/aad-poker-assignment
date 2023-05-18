@@ -42,6 +42,7 @@ export const getGames = (
       });
     });
     setGames(games);
+    console.log(games)
 
     // if the player has joined a game and the game is started update values
     const currentGame = games.find(
@@ -49,6 +50,7 @@ export const getGames = (
     );
 
     if (currentGame?.started) {
+      console.log("started");
       currentGameContext.started = true;
       setCurrentGameContext(currentGameContext);
     }
@@ -93,4 +95,15 @@ export const getPlayers = (gameId, setPlayers) => {
     setPlayers(players);
   });
   return () => unsubscribe();
+};
+
+export const updateHand = (gameId, playerId, hand) => {
+  const playerDocRef = doc(firestore, "games", gameId, "players", playerId);
+
+  console.log("update hand")
+  console.log(hand)
+
+  updateDoc(playerDocRef, {
+    hand: hand,
+  });
 };

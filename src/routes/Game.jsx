@@ -1,10 +1,14 @@
 import { useContext, useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { updateHand } from "../firestore.functions";
+import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
+import GameContext from "../GameContext";
 
 const Game = () => {
   const { authContext } = useContext(AuthContext);
-  const [deck, setDeck] = useState(createDeck);
+  const location = useLocation();
+
+  const [deck, setDeck] = useState(createDeck());
   const [hand, setHand] = useState([]);
 
   function createDeck() {
@@ -24,18 +28,12 @@ const Game = () => {
       "K",
       "A",
     ];
-
-    const deck = [];
-
-    for (const suit of suits) {
-      for (const rank of ranks) {
-        deck.push(rank + suit);
-      }
-    }
-
+    // Join ranks and suits into new array
+    const deck = suits.flatMap((suit) => ranks.map((rank) => rank + suit));
     return deck;
   }
 
+  // Deal player a new hand and remove those cards from the deck
   const dealHand = () => {
     const newHand = [];
     for (let i = 0; i < 5; i++) {
@@ -43,25 +41,31 @@ const Game = () => {
       const randomCard = deck.splice(randomIndex, 1)[0];
       newHand.push(randomCard);
     }
-
     setHand(newHand);
     setDeck(deck);
   };
 
   useEffect(() => {
     dealHand();
-  }, [deck]);
+  }, []);
 
-  // Protect route
+  useEffect(() => {
+    if (hand.length === 5) {
+      updateHand(location.state.gameId, authContext.uid, hand);
+    }
+  }, [hand]);
+
   if (!authContext.uid) {
     return <Navigate to="/" />;
   }
 
   return (
     <div>
-      {hand.map((card, idx) => {
-        return <span style={{ margin: "10px" }} key={`card-${idx}`}>{card}</span>;
-      })}
+      {hand.map((card, idx) => (
+        <span style={{ margin: "10px" }} key={`card-${idx}`}>
+          {card}
+        </span>
+      ))}
     </div>
   );
 };

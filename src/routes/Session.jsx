@@ -16,13 +16,13 @@ const Session = () => {
 
   const handleCreateGame = async (e) => {
     e.preventDefault();
-    let gameId = createGame(gameName, authContext.uid);
-    joinGame(authContext.uid, gameId);
-    setCurrentGameContext({
-      gameId: gameId,
-      started: false,
-    });
-    navigate("/waiting");
+    createGame(gameName, authContext.uid);
+    // joinGame(authContext.uid, gameId);
+    // setCurrentGameContext({
+    //   gameId: gameId,
+    //   started: false,
+    // });
+    // navigate("/waiting");
     setGameName("");
   };
 
@@ -32,7 +32,7 @@ const Session = () => {
       gameId: gameId,
       started: false,
     });
-    navigate("/waiting");
+    navigate("/waiting", {state: { gameId: gameId}});
   };
 
   useEffect(() => {
