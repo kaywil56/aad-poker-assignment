@@ -1,24 +1,21 @@
 import { useEffect, useState } from "react";
 import { getPlayers, startGame } from "../firestore.functions";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import AuthContext from "../AuthContext";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import GameContext from "../GameContext";
 
 const WaitingRoom = () => {
   const [players, setPlayers] = useState([]);
-  const { authContext } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate()
   const { currentGameContext } = useContext(GameContext);
 
   const handleStartGame = () => {
-    startGame(currentGameContext.gameId);
-    console.log(currentGameContext);
+    startGame(location.state.gameId);
   };
 
   useEffect(() => {
-    getPlayers(currentGameContext.gameId, setPlayers);
+    getPlayers(location.state.gameId, setPlayers);
   }, [location]);
 
   if (currentGameContext.started) {
