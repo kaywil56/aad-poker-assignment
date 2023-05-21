@@ -56,10 +56,13 @@ const Game = () => {
     setDeck(deck);
   };
 
+  const flush = (hand) => {
+    const suits = new Set(hand.map(card => card.suit))
+    return(suits.length === 1)
+  }
+
   const royalFlush = (hand) => {
     const requiredRanks = ['J', 'K', 'Q', 'A']
-    // Extract unique suits
-    const suits = new Set(hand.map(card => card.suit))
 
     let meetsRequiredRanks = true
 
@@ -69,7 +72,7 @@ const Game = () => {
       }
     })
 
-    return(suits.length === 1 && meetsRequiredRanks)
+    return(flush(hand) && meetsRequiredRanks)
   }
 
   useEffect(() => {
