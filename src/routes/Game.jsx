@@ -49,40 +49,28 @@ const Game = () => {
       return false;
     }
 
-    // Convert back to array
+    // Convert to array
     uniqueValues = [...uniqueValues];
 
-    uniqueValues.sort(function (a, b) {
-      return a.value - b.value;
-    });
+    uniqueValues.sort();
 
-    // Iterate over unique values, checking if the current value 
+    // Iterate over unique values, checking if the current value
     // is is equal to the previous value when you add 1
-    for (let i = 1; i < hand.length; i++) {
-      if (uniqueValues[i].value != uniqueValues[i - 1].value + 1) {
+    for (let i = 1; i < uniqueValues.length; i++) {
+      if (uniqueValues[i] != uniqueValues[i - 1] + 1) {
         return false;
       }
     }
     return true;
   };
 
-  const convertToFaceValue = (value) => {
-    if (value === 1) {
-      return "Ace";
-    } else if (value === 13) {
-      return "King";
-    } else if (value === 12) {
-      return "Queen";
-    } else if (value === 11) {
-      return "Jack";
-    } else {
-      return value;
-    }
-  };
-
   const flush = (hand) => {
     const suits = new Set(hand.map((card) => card.suit));
-    return suits.length === 1;
+    return suits.size === 1;
+  };
+
+  const straightFlush = (hand) => {
+    return flush(hand) && straight(hand);
   };
 
   const royalFlush = (hand) => {
@@ -99,46 +87,29 @@ const Game = () => {
     return flush(hand) && meetsRequiredValues;
   };
 
+  const convertToFaceValue = (value) => {
+    if (value === 1) {
+      return "Ace";
+    } else if (value === 13) {
+      return "King";
+    } else if (value === 12) {
+      return "Queen";
+    } else if (value === 11) {
+      return "Jack";
+    } else {
+      return value;
+    }
+  };
+
   useEffect(() => {
     dealHand();
-
-    // const royalFlushHand = [
-    //   { suit: 'Spades', value: 'J' },
-    //   { suit: 'Spades', value: 'K' },
-    //   { suit: 'Spades', value: 'Q' },
-    //   { suit: 'Spades', value: 'A' },
-    //   { suit: 'Spades', value: '10' }
-    // ];
-
-    // const sameSuitsHand = [
-    //   { suit: 'Diamonds', value: '2' },
-    //   { suit: 'Diamonds', value: '6' },
-    //   { suit: 'Diamonds', value: '10' },
-    //   { suit: 'Diamonds', value: 'K' },
-    //   { suit: 'Diamonds', value: 'A' }
-    // ];
-
-    // const sameValuesHand = [
-    //   { suit: 'Clubs', value: '8' },
-    //   { suit: 'Hearts', value: '8' },
-    //   { suit: 'Spades', value: '8' },
-    //   { suit: 'Diamonds', value: '8' },
-    //   { suit: 'Clubs', value: '8' }
-    // ];
-
-    // console.log("true" , royalFlush(royalFlushHand))
-    // console.log("false" , royalFlush(sameSuitsHand))
-    // console.log("false" , royalFlush(sameValuesHand))
-
-    const testStraightHand = [
+    const straightFlushHand = [
       { suit: "Diamonds", value: 2 },
-      { suit: "Diamonds", value: 13 },
+      { suit: "Diamonds", value: 6 },
       { suit: "Diamonds", value: 4 },
       { suit: "Diamonds", value: 5 },
       { suit: "Diamonds", value: 3 },
     ];
-
-    console.log(straight(testStraightHand));
   }, []);
 
   // useEffect(() => {
