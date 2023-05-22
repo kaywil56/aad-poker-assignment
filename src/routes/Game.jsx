@@ -41,12 +41,29 @@ const Game = () => {
   };
 
   const straight = (hand) => {
-    const uniqueValues = new Set(hand.map((card) => card.value));
+    // Use a set to extract unique values only
+    let uniqueValues = new Set(hand.map((card) => card.value));
 
     // Impossible to have a straight with less than 5 unique values
     if (uniqueValues.length < 5) {
       return false;
     }
+
+    // Convert back to array
+    uniqueValues = [...uniqueValues];
+
+    uniqueValues.sort(function (a, b) {
+      return a.value - b.value;
+    });
+
+    // Iterate over unique values, checking if the current value 
+    // is is equal to the previous value when you add 1
+    for (let i = 1; i < hand.length; i++) {
+      if (uniqueValues[i].value != uniqueValues[i - 1].value + 1) {
+        return false;
+      }
+    }
+    return true;
   };
 
   const convertToFaceValue = (value) => {
@@ -84,7 +101,6 @@ const Game = () => {
 
   useEffect(() => {
     dealHand();
-    console.log(deck);
 
     // const royalFlushHand = [
     //   { suit: 'Spades', value: 'J' },
@@ -113,6 +129,16 @@ const Game = () => {
     // console.log("true" , royalFlush(royalFlushHand))
     // console.log("false" , royalFlush(sameSuitsHand))
     // console.log("false" , royalFlush(sameValuesHand))
+
+    const testStraightHand = [
+      { suit: "Diamonds", value: 2 },
+      { suit: "Diamonds", value: 13 },
+      { suit: "Diamonds", value: 4 },
+      { suit: "Diamonds", value: 5 },
+      { suit: "Diamonds", value: 3 },
+    ];
+
+    console.log(straight(testStraightHand));
   }, []);
 
   // useEffect(() => {
