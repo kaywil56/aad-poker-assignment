@@ -4,8 +4,8 @@ import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
 
 const Game = () => {
-  const { authContext } = useContext(AuthContext);
-  const location = useLocation();
+  // const { authContext } = useContext(AuthContext);
+  // const location = useLocation();
 
   const [deck, setDeck] = useState(createDeck());
   const [hand, setHand] = useState([]);
@@ -41,7 +41,7 @@ const Game = () => {
       }
     }
 
-    return deck
+    return deck;
   }
 
   // Deal player a new hand and remove those cards from the deck
@@ -56,24 +56,43 @@ const Game = () => {
     setDeck(deck);
   };
 
-  const flush = (hand) => {
-    const suits = new Set(hand.map(card => card.suit))
-    return(suits.length === 1)
-  }
+  const straight = (hand) => {
+    const uniqueValues = new Set(hand.map((card) => card.value));
+
+    // Impossible to have a straight with less than 5 unique values
+    if (uniqueValues.length < 5) {
+      return false;
+    }
+  };
+
+  const getNumberValue = (value) => {
+    if (value === "A") {
+      return 14;
+    } else if (value === "K") {
+      return 13;
+    } else if (value === "Q") {
+      return 12;
+    } else if (value === "J") {
+      return 11;
+    } else {
+      return parseInt(value);
+    }
+  };
 
   const royalFlush = (hand) => {
-    const requiredRanks = ['J', 'K', 'Q', 'A']
+    const requiredValues = ["10", "J", "K", "Q", "A"];
+    const suits = new Set(hand.map((card) => card.suit));
 
-    let meetsRequiredRanks = true
+    let meetsRequiredValues = true;
 
     hand.forEach((card) => {
-      if(!requiredRanks.includes(card.value)){
-        meetsRequiredRanks = false
+      if (!requiredValues.includes(card.value)) {
+        meetsRequiredValues = false;
       }
-    })
+    });
 
-    return(flush(hand) && meetsRequiredRanks)
-  }
+    return suits.length === 1 && meetsRequiredValues;
+  };
 
   useEffect(() => {
     dealHand();
@@ -105,18 +124,17 @@ const Game = () => {
     // console.log("true" , royalFlush(royalFlushHand))
     // console.log("false" , royalFlush(sameSuitsHand))
     // console.log("false" , royalFlush(sameValuesHand))
-
   }, []);
 
-  useEffect(() => {
-    if (hand.length === 5) {
-      updateHand(location.state.gameId, authContext.uid, hand);
-    }
-  }, [hand]);
+  // useEffect(() => {
+  //   if (hand.length === 5) {
+  //     updateHand(location.state.gameId, authContext.uid, hand);
+  //   }
+  // }, [hand]);
 
-  if (!authContext.uid) {
-    return <Navigate to="/" />;
-  }
+  // if (!authContext.uid) {
+  //   return <Navigate to="/" />;
+  // }
 
   return (
     <div>
