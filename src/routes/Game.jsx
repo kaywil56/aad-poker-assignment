@@ -13,29 +13,13 @@ const Game = () => {
 
   function createDeck() {
     const suits = ["Spades", "Hearts", "Diamonds", "Clubs"];
-    const values = [
-      "A",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "J",
-      "Q",
-      "K",
-    ];
-
     const deck = [];
 
     for (const suit of suits) {
-      for (const value of values) {
+      for (let i = 1; i < 14; i++) {
         const card = {
           suit: suit,
-          value: value,
+          value: i,
         };
         deck.push(card);
       }
@@ -65,23 +49,27 @@ const Game = () => {
     }
   };
 
-  const getNumberValue = (value) => {
-    if (value === "A") {
-      return 14;
-    } else if (value === "K") {
-      return 13;
-    } else if (value === "Q") {
-      return 12;
-    } else if (value === "J") {
-      return 11;
+  const convertToFaceValue = (value) => {
+    if (value === 1) {
+      return "Ace";
+    } else if (value === 13) {
+      return "King";
+    } else if (value === 12) {
+      return "Queen";
+    } else if (value === 11) {
+      return "Jack";
     } else {
-      return parseInt(value);
+      return value;
     }
+  };
+
+  const flush = (hand) => {
+    const suits = new Set(hand.map((card) => card.suit));
+    return suits.length === 1;
   };
 
   const royalFlush = (hand) => {
     const requiredValues = ["10", "J", "K", "Q", "A"];
-    const suits = new Set(hand.map((card) => card.suit));
 
     let meetsRequiredValues = true;
 
@@ -91,11 +79,12 @@ const Game = () => {
       }
     });
 
-    return suits.length === 1 && meetsRequiredValues;
+    return flush(hand) && meetsRequiredValues;
   };
 
   useEffect(() => {
     dealHand();
+    console.log(deck);
 
     // const royalFlushHand = [
     //   { suit: 'Spades', value: 'J' },
@@ -141,7 +130,7 @@ const Game = () => {
       <p>Hand Rank: {handRank}</p>
       {hand.map((card, idx) => (
         <span style={{ margin: "10px" }} key={`card-${idx}`}>
-          {`${card.value} of ${card.suit}`}
+          {`${convertToFaceValue(card.value)} of ${card.suit}`}
         </span>
       ))}
     </div>
