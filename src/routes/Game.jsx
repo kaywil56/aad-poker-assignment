@@ -40,6 +40,50 @@ const Game = () => {
     setDeck(deck);
   };
 
+  // This function can be used for 1 pair, three of a kind and four of a kind
+  // by passing a value for the count paramater.
+  const multiples = (hand, count) => {
+    const values = hand.map((card) => card.value);
+    const valueCounts = {};
+
+    for (let i = 0; i < values.length; i++) {
+      const value = values[i];
+      if (valueCounts[value]) {
+        valueCounts[value] += 1;
+      } else {
+        valueCounts[value] = 1;
+      }
+
+      if (valueCounts[value] === count) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const twoPair = (hand) => {
+    const values = hand.map((card) => card.value);
+    const valueCounts = {};
+
+    let pairCount = 0;
+
+    for (let i = 0; i < values.length; i++) {
+      const value = values[i];
+      if (valueCounts[value]) {
+        valueCounts[value] += 1;
+      } else {
+        valueCounts[value] = 1;
+      }
+
+      if (valueCounts[value] === 2) {
+        pairCount++;
+      }
+    }
+
+    return pairCount === 2;
+  };
+
   const straight = (hand) => {
     // Use a set to extract unique values only
     let uniqueValues = new Set(hand.map((card) => card.value));
@@ -103,13 +147,14 @@ const Game = () => {
 
   useEffect(() => {
     dealHand();
-    const straightFlushHand = [
-      { suit: "Diamonds", value: 2 },
-      { suit: "Diamonds", value: 6 },
-      { suit: "Diamonds", value: 4 },
-      { suit: "Diamonds", value: 5 },
-      { suit: "Diamonds", value: 3 },
+    const handWithTwoPair = [
+      { value: "9", suit: "Spades" },
+      { value: "7", suit: "Clubs" },
+      { value: "4", suit: "Hearts" },
+      { value: "6", suit: "Diamonds" },
+      { value: "9", suit: "Hearts" },
     ];
+    console.log(twoPair(handWithTwoPair));
   }, []);
 
   // useEffect(() => {
