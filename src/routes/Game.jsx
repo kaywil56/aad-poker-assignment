@@ -40,6 +40,10 @@ const Game = () => {
     setDeck(deck);
   };
 
+  const fullHouse = (hand) => {
+    return multiples(hand, 2) && multiples(hand, 3);
+  };
+
   // This function can be used for 1 pair, three of a kind and four of a kind
   // by passing a value for the count paramater.
   const multiples = (hand, count) => {
@@ -147,14 +151,6 @@ const Game = () => {
 
   useEffect(() => {
     dealHand();
-    const handWithTwoPair = [
-      { value: "9", suit: "Spades" },
-      { value: "7", suit: "Clubs" },
-      { value: "4", suit: "Hearts" },
-      { value: "6", suit: "Diamonds" },
-      { value: "9", suit: "Hearts" },
-    ];
-    console.log(twoPair(handWithTwoPair));
   }, []);
 
   // useEffect(() => {
