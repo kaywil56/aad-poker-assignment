@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
-import { updateHand } from "../firestore.functions";
+import { updateHand, updateHandRank } from "../firestore.functions";
 import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
 
 const Game = () => {
-  // const { authContext } = useContext(AuthContext);
-  // const location = useLocation();
+  const { authContext } = useContext(AuthContext);
+  const location = useLocation();
 
   const [deck, setDeck] = useState(createDeck());
   const [hand, setHand] = useState([]);
@@ -149,15 +149,12 @@ const Game = () => {
 
   const evaluateHand = () => {
     for (const handType of handTypes) {
-      // console.log(handType.type);
-      // console.log(handType.evaluator(hand));
       if (handType.evaluator(hand)) {
-        setHandRank(handType.type)
-        return
+        setHandRank(handType.type);
+        return;
       }
     }
-    // return { type: "High Card", rank: 1 };
-    setHandRank("High Card")
+    setHandRank("High Card");
   };
 
   const convertToFaceValue = (value) => {
@@ -174,30 +171,23 @@ const Game = () => {
     }
   };
 
+  const stand = () => {
+    updateHandRank(location.state.gameId, authContext.uid, handRank);
+  };
+
   useEffect(() => {
     dealHand();
-    // const currentHandRank = evaluateHand();
-    // setHandRank(currentHandRank.type);
-    // const testHand = [
-    //   { suit: "Spades", value: 9 },
-    //   { suit: "Hearts", value: 10 },
-    //   { suit: "Diamonds", value: 11 },
-    //   { suit: "Clubs", value: 9 },
-    //   { suit: "Spades", value: 13 },
-    // ];
-
-    // console.log(multiples(testHand, 2));
   }, []);
 
-  // useEffect(() => {
-  //   if (hand.length === 5) {
-  //     updateHand(location.state.gameId, authContext.uid, hand);
-  //   }
-  // }, [hand]);
+  useEffect(() => {
+    if (hand.length === 5) {
+      updateHand(location.state.gameId, authContext.uid, hand);
+    }
+  }, [hand]);
 
-  // if (!authContext.uid) {
-  //   return <Navigate to="/" />;
-  // }
+  if (!authContext.uid) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <div>
@@ -208,6 +198,7 @@ const Game = () => {
         </span>
       ))}
       <button onClick={evaluateHand}>Evaluate</button>
+      <button onClick={stand}>Stand</button>
     </div>
   );
 };

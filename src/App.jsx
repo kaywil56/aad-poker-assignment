@@ -14,29 +14,29 @@ const App = () => {
   const [authContext, setAuthContext] = useState({});
   const [currentGameContext, setCurrentGameContext] = useState({});
 
-  // useEffect(() => {
-  //   onAuthStateChanged(auth, (user) => {
-  //     if (user) {
-  //       setAuthContext({ uid: user.uid, email: user.email, currentGame: {} });
-  //       navigate("/session");
-  //     } else {
-  //       setAuthContext({});
-  //     }
-  //   });
-  // }, []);
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setAuthContext({ uid: user.uid, email: user.email, currentGame: {} });
+        navigate("/session");
+      } else {
+        setAuthContext({});
+      }
+    });
+  }, []);
 
   return (
     <AuthContext.Provider value={{ authContext, setAuthContext }}>
       <GameContext.Provider value={{ currentGameContext, setCurrentGameContext }}>
         <Routes>
-          <Route path="/" element={<Game />} />
-          {/* <Route
+          <Route path="/" element={<LoginRegister text={"login"} />} />
+          <Route
             path="/register"
             element={<LoginRegister text={"Register"} />}
           />
           <Route path="/session" element={<Session />} />
           <Route path="/waiting" element={<WaitingRoom />} />
-          <Route path="/game" element={<Game />} /> */}
+          <Route path="/game" element={<Game />} />
         </Routes>
       </GameContext.Provider>
     </AuthContext.Provider>

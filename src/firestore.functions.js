@@ -23,8 +23,6 @@ export const createGame = (gameName, ownerId) => {
   });
 };
 
-
-
 export const getGames = (
   setGames,
   currentGameContext,
@@ -44,7 +42,7 @@ export const getGames = (
       });
     });
     setGames(games);
-    console.log(games)
+    console.log(games);
 
     // if the player has joined a game and the game is started update values
     const currentGame = games.find(
@@ -102,10 +100,15 @@ export const getPlayers = (gameId, setPlayers) => {
 export const updateHand = (gameId, playerId, hand) => {
   const playerDocRef = doc(firestore, "games", gameId, "players", playerId);
 
-  console.log("update hand")
-  console.log(hand)
-
   updateDoc(playerDocRef, {
     hand: hand,
+  });
+};
+
+export const updateHandRank = (gameId, playerId, handRank) => {
+  const playerDocRef = doc(firestore, "games", gameId, "players", playerId);
+
+  updateDoc(playerDocRef, {
+    rank: handRank,
   });
 };
