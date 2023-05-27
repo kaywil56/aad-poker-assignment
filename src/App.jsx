@@ -4,7 +4,6 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import LoginRegister from "./routes/LoginRegister";
 import Session from "./routes/Session";
 import Game from "./routes/Game";
-import WaitingRoom from "./routes/WaitingRoom";
 import AuthContext from "./AuthContext";
 
 const App = () => {
@@ -29,7 +28,6 @@ const App = () => {
         <Route path="/" element={<LoginRegister text={"Login"} />} />
         <Route path="/register" element={<LoginRegister text={"Register"} />} />
         <Route path="/session" element={<Session />} />
-        <Route path="/waiting" element={<WaitingRoom />} />
         <Route path="/game" element={<Game />} />
       </Routes>
     </AuthContext.Provider>

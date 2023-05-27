@@ -1,5 +1,10 @@
 import { useContext, useEffect, useState } from "react";
-import { updateHand, updateHandRank, getPlayers } from "../firestore.functions";
+import {
+  updateHand,
+  updateHandRank,
+  getPlayers,
+  setNextPlayerTurn,
+} from "../firestore.functions";
 import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
 
@@ -174,11 +179,20 @@ const Game = () => {
 
   const stand = () => {
     updateHandRank(location.state.gameId, authContext.uid, handRank);
+    handleSetNextPlayerTurn();
   };
 
-  // const setNextPlayerTurn = () => {
+  const handleSetNextPlayerTurn = () => {
+    const currentPlayerIdx = players.findIndex(
+      (player) => player.id === authContext.uid
+    );
 
-  // }
+    // use modulo operator to create a circular system and prevent index errors
+    const nextPlayerIdx = (currentPlayerIdx + 1) % players.length;
+    const nextPlayer = players[nextPlayerIdx];
+
+    setNextPlayerTurn(location.state.gameId, authContext.uid, nextPlayer.id);
+  };
 
   useEffect(() => {
     dealHand();

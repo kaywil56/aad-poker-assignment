@@ -32,6 +32,7 @@ export const getGames = (setGames) => {
         id: doc.id,
         name: doc.data().name,
         started: doc.data().started,
+        owner: doc.data().owner
       });
     });
     setGames(games);
@@ -91,3 +92,16 @@ export const updateHandRank = async (gameId, playerId, handRank) => {
     rank: handRank,
   });
 };
+
+export const setNextPlayerTurn = async (gameId, playerId, nextPlayerId) => {
+  const currentPlayerDocRef = doc(firestore, "games", gameId, "players", playerId)
+  const nextPlayerDocRef = doc(firestore, "games", gameId, "players", nextPlayerId)
+
+  await updateDoc(currentPlayerDocRef, {
+    isTurn: false,
+  })
+  
+  await updateDoc(nextPlayerDocRef, {
+    isTurn: true,
+  })
+}

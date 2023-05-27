@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../AuthContext";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import {
   createGame,
@@ -28,7 +28,6 @@ const Session = () => {
   const handleJoinGame = (gameId) => {
     joinGame(authContext.uid, gameId, false);
     setCurrentGameId(gameId);
-    console.log(currentGame);
   };
 
   const handleStartGame = (gameId) => {
@@ -44,6 +43,7 @@ const Session = () => {
     return <Navigate to="/" />;
   }
 
+  // If the game that the player currently belongs to is started
   if (games.find((game) => game.id === currentGameId)?.started) {
     return <Navigate to="/game" state={{ gameId: currentGameId }} />;
   }
@@ -66,10 +66,14 @@ const Session = () => {
           return (
             <li key={idx}>
               {`${game.name} ${game.started}`}
-              <button onClick={() => handleJoinGame(game.id)}>Join</button>
-              <button onClick={() => handleStartGame(game.id)}>
-                Start Game
-              </button>
+              {game.id !== currentGameId && (
+                <button onClick={() => handleJoinGame(game.id)}>Join</button>
+              )}
+              {game.owner === authContext.uid && (
+                <button onClick={() => handleStartGame(game.id)}>
+                  Start Game
+                </button>
+              )}
             </li>
           );
         })}
