@@ -9,30 +9,23 @@ import {
 } from "firebase/firestore";
 import firestore from "../firestore";
 
-export const createGame = (gameName, ownerId) => {
+export const createGame = async (gameName, ownerId) => {
   const gameCollectionRef = collection(firestore, "games");
-  const newGameDocRef = addDoc(gameCollectionRef, {
+  const newGameDocRef = await addDoc(gameCollectionRef, {
     owner: ownerId,
     name: gameName,
     started: false,
   });
-
-  // Auto join self to game
-  newGameDocRef.then((doc) => {
-    return doc.id;
-  });
+  
+  return newGameDocRef.id;
 };
 
-export const getGames = (
-  setGames,
-  currentGameContext,
-  setCurrentGameContext
-) => {
+export const getGames = (setGames) => {
   const gameCollectionRef = collection(firestore, "games");
 
   const gamesQuery = query(gameCollectionRef);
 
-  const unsubscribe = onSnapshot(gamesQuery, (querySnapshot) => {
+  const unsubscribe = onSnapshot(gamesQuery, async (querySnapshot) => {
     const games = [];
     querySnapshot.forEach((doc) => {
       games.push({
@@ -42,45 +35,29 @@ export const getGames = (
       });
     });
     setGames(games);
-    console.log(games);
-
-    // if the player has joined a game and the game is started update values
-    const currentGame = games.find(
-      (game) => game.gameId === currentGameContext.gameId
-    );
-
-    if (currentGame?.started) {
-      console.log("started");
-      currentGameContext.started = true;
-      setCurrentGameContext(currentGameContext);
-    }
   });
   return () => unsubscribe();
 };
 
-export const joinGame = (userId, gameId) => {
+export const joinGame = async (userId, gameId, isTurn) => {
   const playersDocRef = doc(firestore, "games", gameId, "players", userId);
 
-  setDoc(playersDocRef, {
+  await setDoc(playersDocRef, {
     playerId: userId,
+    isTurn: isTurn,
   });
 };
 
-export const startGame = (gameId) => {
+export const startGame = async (gameId) => {
   const gameDocRef = doc(firestore, "games", gameId);
 
-  updateDoc(gameDocRef, {
+  await updateDoc(gameDocRef, {
     started: true,
   });
 };
 
 export const getPlayers = (gameId, setPlayers) => {
-  const playersCollectionRef = collection(
-    firestore,
-    "games",
-    gameId,
-    "players"
-  );
+  const playersCollectionRef = collection(firestore, "games", gameId, "players");
 
   const playersQuery = query(playersCollectionRef);
 
@@ -90,6 +67,8 @@ export const getPlayers = (gameId, setPlayers) => {
       players.push({
         id: doc.id,
         playerId: doc.data().playerId,
+        hand: doc.data().hand,
+        isTurn: doc.data().isTurn,
       });
     });
     setPlayers(players);
@@ -97,18 +76,18 @@ export const getPlayers = (gameId, setPlayers) => {
   return () => unsubscribe();
 };
 
-export const updateHand = (gameId, playerId, hand) => {
+export const updateHand = async (gameId, playerId, hand) => {
   const playerDocRef = doc(firestore, "games", gameId, "players", playerId);
 
-  updateDoc(playerDocRef, {
+  await updateDoc(playerDocRef, {
     hand: hand,
   });
 };
 
-export const updateHandRank = (gameId, playerId, handRank) => {
+export const updateHandRank = async (gameId, playerId, handRank) => {
   const playerDocRef = doc(firestore, "games", gameId, "players", playerId);
 
-  updateDoc(playerDocRef, {
+  await updateDoc(playerDocRef, {
     rank: handRank,
   });
 };

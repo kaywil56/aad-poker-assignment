@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { updateHand, updateHandRank } from "../firestore.functions";
+import { updateHand, updateHandRank, getPlayers } from "../firestore.functions";
 import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
 
@@ -10,6 +10,7 @@ const Game = () => {
   const [deck, setDeck] = useState(createDeck());
   const [hand, setHand] = useState([]);
   const [handRank, setHandRank] = useState("");
+  const [players, setPlayers] = useState([]);
 
   const handTypes = [
     { type: "Royal Flush", rank: 10, evaluator: () => royalFlush() },
@@ -175,15 +176,32 @@ const Game = () => {
     updateHandRank(location.state.gameId, authContext.uid, handRank);
   };
 
+  // const setNextPlayerTurn = () => {
+
+  // }
+
   useEffect(() => {
     dealHand();
   }, []);
+
+  const isPlayerTurn = () => {
+    const currentPlayer = players.find(
+      (player) => player.playerId === authContext.uid
+    );
+    return currentPlayer?.isTurn;
+  };
 
   useEffect(() => {
     if (hand.length === 5) {
       updateHand(location.state.gameId, authContext.uid, hand);
     }
   }, [hand]);
+
+  useEffect(() => {
+    if (location.state.gameId) {
+      getPlayers(location.state.gameId, setPlayers);
+    }
+  }, [location]);
 
   if (!authContext.uid) {
     return <Navigate to="/" />;
@@ -198,7 +216,7 @@ const Game = () => {
         </span>
       ))}
       <button onClick={evaluateHand}>Evaluate</button>
-      <button onClick={stand}>Stand</button>
+      {isPlayerTurn() && <button onClick={stand}>Stand</button>}
     </div>
   );
 };
