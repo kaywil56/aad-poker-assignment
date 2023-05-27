@@ -6,13 +6,11 @@ import Session from "./routes/Session";
 import Game from "./routes/Game";
 import WaitingRoom from "./routes/WaitingRoom";
 import AuthContext from "./AuthContext";
-import GameContext from "./GameContext";
 
 const App = () => {
   const navigate = useNavigate();
   const auth = getAuth();
   const [authContext, setAuthContext] = useState({});
-  const [currentGameContext, setCurrentGameContext] = useState({});
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -27,18 +25,13 @@ const App = () => {
 
   return (
     <AuthContext.Provider value={{ authContext, setAuthContext }}>
-      <GameContext.Provider value={{ currentGameContext, setCurrentGameContext }}>
-        <Routes>
-          <Route path="/" element={<LoginRegister text={"login"} />} />
-          <Route
-            path="/register"
-            element={<LoginRegister text={"Register"} />}
-          />
-          <Route path="/session" element={<Session />} />
-          <Route path="/waiting" element={<WaitingRoom />} />
-          <Route path="/game" element={<Game />} />
-        </Routes>
-      </GameContext.Provider>
+      <Routes>
+        <Route path="/" element={<LoginRegister text={"Login"} />} />
+        <Route path="/register" element={<LoginRegister text={"Register"} />} />
+        <Route path="/session" element={<Session />} />
+        <Route path="/waiting" element={<WaitingRoom />} />
+        <Route path="/game" element={<Game />} />
+      </Routes>
     </AuthContext.Provider>
   );
 };
