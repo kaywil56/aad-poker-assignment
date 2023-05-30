@@ -6,6 +6,8 @@ import {
   doc,
   setDoc,
   updateDoc,
+  writeBatch,
+  getDocs
 } from "firebase/firestore";
 import firestore from "../firestore";
 
@@ -16,7 +18,7 @@ export const createGame = async (gameName, ownerId) => {
     name: gameName,
     started: false,
   });
-  
+
   return newGameDocRef.id;
 };
 
@@ -32,7 +34,7 @@ export const getGames = (setGames) => {
         id: doc.id,
         name: doc.data().name,
         started: doc.data().started,
-        owner: doc.data().owner
+        owner: doc.data().owner,
       });
     });
     setGames(games);
@@ -58,7 +60,12 @@ export const startGame = async (gameId) => {
 };
 
 export const getPlayers = (gameId, setPlayers) => {
-  const playersCollectionRef = collection(firestore, "games", gameId, "players");
+  const playersCollectionRef = collection(
+    firestore,
+    "games",
+    gameId,
+    "players"
+  );
 
   const playersQuery = query(playersCollectionRef);
 
@@ -94,14 +101,42 @@ export const updateHandRank = async (gameId, playerId, handRank) => {
 };
 
 export const setNextPlayerTurn = async (gameId, playerId, nextPlayerId) => {
-  const currentPlayerDocRef = doc(firestore, "games", gameId, "players", playerId)
-  const nextPlayerDocRef = doc(firestore, "games", gameId, "players", nextPlayerId)
+  const currentPlayerDocRef = doc(
+    firestore,
+    "games",
+    gameId,
+    "players",
+    playerId
+  );
+  const nextPlayerDocRef = doc(
+    firestore,
+    "games",
+    gameId,
+    "players",
+    nextPlayerId
+  );
 
   await updateDoc(currentPlayerDocRef, {
     isTurn: false,
-  })
-  
+  });
+
   await updateDoc(nextPlayerDocRef, {
     isTurn: true,
-  })
-}
+  });
+};
+
+export const dealPlayersInitialCards = async (deck, gameId) => {
+  const batch = writeBatch(firestore);
+
+  const shuffledDeck = deck.sort(() => Math.random() - 0.5);
+
+  const playersQuery = collection(firestore, "games", gameId, "players");
+  const playersSnapshot = await getDocs(playersQuery);
+
+  playersSnapshot.forEach((doc) => {
+    const hand = shuffledDeck.splice(0, 5);
+    batch.update(doc.ref, { hand: hand });
+  });
+
+  await batch.commit();
+};

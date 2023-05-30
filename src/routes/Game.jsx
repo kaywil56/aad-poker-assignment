@@ -4,6 +4,7 @@ import {
   updateHandRank,
   getPlayers,
   setNextPlayerTurn,
+  dealPlayersInitialCards,
 } from "../firestore.functions";
 import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
@@ -11,7 +12,6 @@ import AuthContext from "../AuthContext";
 const Game = () => {
   const { authContext } = useContext(AuthContext);
   const location = useLocation();
-
   const [deck, setDeck] = useState(createDeck());
   const [hand, setHand] = useState([]);
   const [handRank, setHandRank] = useState("");
@@ -46,17 +46,17 @@ const Game = () => {
     return deck;
   }
 
-  // Deal player a new hand and remove those cards from the deck
-  const dealHand = () => {
-    const newHand = [];
-    for (let i = 0; i < 5; i++) {
-      const randomIndex = Math.floor(Math.random() * deck.length);
-      const randomCard = deck.splice(randomIndex, 1)[0];
-      newHand.push(randomCard);
-    }
-    setHand(newHand);
-    setDeck(deck);
-  };
+  // // Deal player a new hand and remove those cards from the deck
+  // const dealHand = () => {
+  //   const newHand = [];
+  //   for (let i = 0; i < 5; i++) {
+  //     const randomIndex = Math.floor(Math.random() * deck.length);
+  //     const randomCard = deck.splice(randomIndex, 1)[0];
+  //     newHand.push(randomCard);
+  //   }
+  //   setHand(newHand);
+  //   setDeck(deck);
+  // };
 
   const fullHouse = (hand) => {
     return multiples(hand, 2) && multiples(hand, 3);
@@ -195,7 +195,10 @@ const Game = () => {
   };
 
   useEffect(() => {
-    dealHand();
+    // Just temp hardcoded
+    if(authContext.uid === 'PrLEF875nNfPIIEGOlqDS4CPsUf1'){
+      dealPlayersInitialCards(deck, location.state.gameId)
+    }
   }, []);
 
   const isPlayerTurn = () => {
