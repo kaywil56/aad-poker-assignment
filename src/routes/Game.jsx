@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import {
-  updateHand,
   updateHandRank,
   getPlayers,
   setNextPlayerTurn,
@@ -45,18 +44,6 @@ const Game = () => {
 
     return deck;
   }
-
-  // // Deal player a new hand and remove those cards from the deck
-  // const dealHand = () => {
-  //   const newHand = [];
-  //   for (let i = 0; i < 5; i++) {
-  //     const randomIndex = Math.floor(Math.random() * deck.length);
-  //     const randomCard = deck.splice(randomIndex, 1)[0];
-  //     newHand.push(randomCard);
-  //   }
-  //   setHand(newHand);
-  //   setDeck(deck);
-  // };
 
   const fullHouse = (hand) => {
     return multiples(hand, 2) && multiples(hand, 3);
@@ -195,10 +182,10 @@ const Game = () => {
   };
 
   useEffect(() => {
-    // Just temp hardcoded
-    if(authContext.uid === 'PrLEF875nNfPIIEGOlqDS4CPsUf1'){
-      dealPlayersInitialCards(deck, location.state.gameId)
+    if (authContext.uid === location.state.owner) {
+      dealPlayersInitialCards(deck, location.state.gameId);
     }
+    getPlayers(location.state.gameId, setPlayers, setHand, authContext.uid);
   }, []);
 
   const isPlayerTurn = () => {
@@ -208,26 +195,16 @@ const Game = () => {
     return currentPlayer?.isTurn;
   };
 
-  useEffect(() => {
-    if (hand.length === 5) {
-      updateHand(location.state.gameId, authContext.uid, hand);
-    }
-  }, [hand]);
-
-  useEffect(() => {
-    if (location.state.gameId) {
-      getPlayers(location.state.gameId, setPlayers);
-    }
-  }, [location]);
-
   if (!authContext.uid) {
     return <Navigate to="/" />;
   }
 
+  console.log(deck)
+
   return (
     <div>
       <p>Hand Rank: {handRank}</p>
-      {hand.map((card, idx) => (
+      {hand?.map((card, idx) => (
         <span style={{ margin: "10px" }} key={`card-${idx}`}>
           {`${convertToFaceValue(card.value)} of ${card.suit}`}
         </span>

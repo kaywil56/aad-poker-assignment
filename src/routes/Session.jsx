@@ -45,7 +45,15 @@ const Session = () => {
 
   // If the game that the player currently belongs to is started
   if (games.find((game) => game.id === currentGameId)?.started) {
-    return <Navigate to="/game" state={{ gameId: currentGameId }} />;
+    return (
+      <Navigate
+        to="/game"
+        state={{
+          gameId: currentGameId,
+          owner: games.find((game) => game.id === currentGameId)?.owner,
+        }}
+      />
+    );
   }
 
   return (

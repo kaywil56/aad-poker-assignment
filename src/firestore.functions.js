@@ -7,7 +7,7 @@ import {
   setDoc,
   updateDoc,
   writeBatch,
-  getDocs
+  getDocs,
 } from "firebase/firestore";
 import firestore from "../firestore";
 
@@ -59,7 +59,7 @@ export const startGame = async (gameId) => {
   });
 };
 
-export const getPlayers = (gameId, setPlayers) => {
+export const getPlayers = (gameId, setPlayers, setHand, uid) => {
   const playersCollectionRef = collection(
     firestore,
     "games",
@@ -72,6 +72,9 @@ export const getPlayers = (gameId, setPlayers) => {
   const unsubscribe = onSnapshot(playersQuery, (querySnapshot) => {
     const players = [];
     querySnapshot.forEach((doc) => {
+      if (doc.data().playerId === uid) {
+        setHand(doc.data().hand);
+      }
       players.push({
         id: doc.id,
         playerId: doc.data().playerId,
@@ -81,6 +84,7 @@ export const getPlayers = (gameId, setPlayers) => {
     });
     setPlayers(players);
   });
+
   return () => unsubscribe();
 };
 
@@ -134,7 +138,7 @@ export const dealPlayersInitialCards = async (deck, gameId) => {
   const playersSnapshot = await getDocs(playersQuery);
 
   playersSnapshot.forEach((doc) => {
-    const hand = shuffledDeck.splice(0, 5);
+    let hand = shuffledDeck.splice(0, 5);
     batch.update(doc.ref, { hand: hand });
   });
 
