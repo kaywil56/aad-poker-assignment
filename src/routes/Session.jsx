@@ -71,19 +71,21 @@ const Session = () => {
       <h2>Join Session</h2>
       <ul>
         {games.map((game, idx) => {
-          return (
-            <li key={idx}>
-              {`${game.name} ${game.started}`}
-              {game.id !== currentGameId && (
-                <button onClick={() => handleJoinGame(game.id)}>Join</button>
-              )}
-              {game.owner === authContext.uid && (
-                <button onClick={() => handleStartGame(game.id)}>
-                  Start Game
-                </button>
-              )}
-            </li>
-          );
+          if (!game.started) {
+            return (
+              <li key={idx}>
+                {`${game.name}`}
+                {game.id !== currentGameId && (
+                  <button onClick={() => handleJoinGame(game.id)}>Join</button>
+                )}
+                {game.owner === authContext.uid && (
+                  <button onClick={() => handleStartGame(game.id)}>
+                    Start Game
+                  </button>
+                )}
+              </li>
+            );
+          }
         })}
       </ul>
       {/* just leaving this here for the moment */}
