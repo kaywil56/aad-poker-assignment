@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore"
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -13,11 +13,11 @@ const firebaseConfig = {
   storageBucket: "poker-pwa-assignment.appspot.com",
   messagingSenderId: "789393184677",
   appId: "1:789393184677:web:39840b7ef681296b5e7a4c",
-  measurementId: "G-BVBF54TPJW"
+  measurementId: "G-BVBF54TPJW",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const firestore = getFirestore(app)
+const firestore = getFirestore(app);
+enableIndexedDbPersistence(firestore);
 
-export default firestore
+export default firestore;
