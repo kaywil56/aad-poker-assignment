@@ -5,6 +5,7 @@ import {
   setNextPlayerTurn,
   dealPlayersInitialCards,
 } from "../firestore.functions";
+import Players from "../components/Game/Players";
 import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
 
@@ -203,6 +204,7 @@ const Game = () => {
 
   return (
     <div>
+      <Players players={players}/>
       <p>Hand Rank: {handRank}</p>
       {hand?.map((card, idx) => (
         <span style={{ margin: "10px" }} key={`card-${idx}`}>
