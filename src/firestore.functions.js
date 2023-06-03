@@ -80,8 +80,10 @@ export const getPlayers = (gameId, setPlayers, setHand, uid) => {
         playerId: doc.data().playerId,
         hand: doc.data().hand,
         isTurn: doc.data().isTurn,
+        rank: doc.data().rank
       });
     });
+    players.reverse()
     setPlayers(players);
   });
 

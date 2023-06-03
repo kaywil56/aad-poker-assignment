@@ -8,6 +8,7 @@ import {
 import Players from "../components/Game/Players";
 import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
+import GameOver from "../components/Game/GameOver";
 
 const Game = () => {
   const { authContext } = useContext(AuthContext);
@@ -16,17 +17,18 @@ const Game = () => {
   const [hand, setHand] = useState([]);
   const [handRank, setHandRank] = useState("");
   const [players, setPlayers] = useState([]);
+  const [winner, setWinner] = useState({});
 
   const handTypes = [
-    { type: "Royal Flush", rank: 10, evaluator: () => royalFlush() },
-    { type: "Straight Flush", rank: 9, evaluator: () => straightFlush() },
-    { type: "Four of a Kind", rank: 8, evaluator: () => multiples(4) },
-    { type: "Full House", rank: 7, evaluator: () => fullHouse() },
-    { type: "Flush", rank: 6, evaluator: () => flush() },
-    { type: "Straight", rank: 5, evaluator: () => straight() },
-    { type: "Three of a Kind", rank: 4, evaluator: () => multiples(3) },
-    { type: "Two Pair", rank: 3, evaluator: () => twoPair() },
-    { type: "One Pair", rank: 2, evaluator: () => multiples(2) },
+    { type: "Royal Flush", level: 10, evaluator: () => royalFlush() },
+    { type: "Straight Flush", level: 9, evaluator: () => straightFlush() },
+    { type: "Four of a Kind", level: 8, evaluator: () => multiples(4) },
+    { type: "Full House", level: 7, evaluator: () => fullHouse() },
+    { type: "Flush", level: 6, evaluator: () => flush() },
+    { type: "Straight", level: 5, evaluator: () => straight() },
+    { type: "Three of a Kind", level: 4, evaluator: () => multiples(3) },
+    { type: "Two Pair", level: 3, evaluator: () => twoPair() },
+    { type: "One Pair", level: 2, evaluator: () => multiples(2) },
   ];
 
   function createDeck() {
@@ -144,11 +146,11 @@ const Game = () => {
   const evaluateHand = () => {
     for (const handType of handTypes) {
       if (handType.evaluator(hand)) {
-        setHandRank(handType.type);
+        setHandRank({ type: handType.type, level: handType.level });
         return;
       }
     }
-    setHandRank("High Card");
+    setHandRank({ type: "High Card", level: 1 });
   };
 
   const convertToFaceValue = (value) => {
@@ -165,8 +167,8 @@ const Game = () => {
     }
   };
 
-  const stand = () => {
-    updateHandRank(location.state.gameId, authContext.uid, handRank);
+  const stand = async () => {
+    await updateHandRank(location.state.gameId, authContext.uid, handRank);
     handleSetNextPlayerTurn();
   };
 
@@ -175,11 +177,26 @@ const Game = () => {
       (player) => player.id === authContext.uid
     );
 
-    // use modulo operator to create a circular system and prevent index errors
-    const nextPlayerIdx = (currentPlayerIdx + 1) % players.length;
+    const nextPlayerIdx = currentPlayerIdx + 1;
+    // If the current player is the last player
+    if (nextPlayerIdx === players.length) {
+      return;
+    }
     const nextPlayer = players[nextPlayerIdx];
 
     setNextPlayerTurn(location.state.gameId, authContext.uid, nextPlayer.id);
+  };
+
+  const evaluateWinner = () => {
+    let highestRank = 0;
+    let currentWinner = {}
+    for (const player of players) {
+      if (player.rank.level > highestRank) {
+        highestRank = player.rank.level;
+        currentWinner = player
+      }
+    }
+    setWinner(currentWinner);
   };
 
   useEffect(() => {
@@ -188,6 +205,17 @@ const Game = () => {
     }
     getPlayers(location.state.gameId, setPlayers, setHand, authContext.uid);
   }, []);
+
+  useEffect(() => {
+    if (players.length > 0) {
+      const allPlayersHavePlayed = players.every(
+        (player) => player?.rank !== undefined
+      );
+      if (allPlayersHavePlayed) {
+        evaluateWinner();
+      }
+    }
+  }, [players]);
 
   const isPlayerTurn = () => {
     const currentPlayer = players.find(
@@ -200,20 +228,24 @@ const Game = () => {
     return <Navigate to="/" />;
   }
 
-  console.log(deck)
-
   return (
-    <div>
-      <Players players={players}/>
-      <p>Hand Rank: {handRank}</p>
-      {hand?.map((card, idx) => (
-        <span style={{ margin: "10px" }} key={`card-${idx}`}>
-          {`${convertToFaceValue(card.value)} of ${card.suit}`}
-        </span>
-      ))}
-      <button onClick={evaluateHand}>Evaluate</button>
-      {isPlayerTurn() && <button onClick={stand}>Stand</button>}
-    </div>
+    <>
+      {!winner.playerId ? (
+        <div>
+          <Players players={players} />
+          <p>Hand Rank: {handRank.type}</p>
+          {hand?.map((card, idx) => (
+            <span style={{ margin: "10px" }} key={`card-${idx}`}>
+              {`${convertToFaceValue(card.value)} of ${card.suit}`}
+            </span>
+          ))}
+          <button onClick={evaluateHand}>Evaluate</button>
+          {isPlayerTurn() && <button onClick={stand}>Stand</button>}
+        </div>
+      ) : (
+        <GameOver winner={winner} />
+      )}
+    </>
   );
 };
 
