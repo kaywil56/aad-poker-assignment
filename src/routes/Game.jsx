@@ -49,7 +49,11 @@ const Game = () => {
   }
 
   const fullHouse = (hand) => {
-    return multiples(hand, 2) && multiples(hand, 3);
+    const tieBreaker = multiples(hand, 3);
+    if (multiples(hand, 2) && tieBreaker) {
+      return tieBreaker;
+    }
+    return false;
   };
 
   // This function can be used for 1 pair, three of a kind and four of a kind
@@ -67,7 +71,7 @@ const Game = () => {
       }
 
       if (valueCounts[value] === count) {
-        return true;
+        return parseInt(valueCounts[value], 10);
       }
     }
 
@@ -75,25 +79,29 @@ const Game = () => {
   };
 
   const twoPair = () => {
-    const values = hand.map((card) => card.value);
     const valueCounts = {};
 
-    let pairCount = 0;
-
-    for (let i = 0; i < values.length; i++) {
-      const value = values[i];
-      if (valueCounts[value]) {
-        valueCounts[value] += 1;
-      } else {
-        valueCounts[value] = 1;
-      }
-
-      if (valueCounts[value] === 2) {
-        pairCount++;
-      }
+    // Track the amount of times a value appears in the hand
+    for (const card of hand) {
+      valueCounts[card.value] = (valueCounts[card.value] || 0) + 1;
     }
 
-    return pairCount === 2;
+    const pairValues = Object.entries(valueCounts)
+      .filter(([value, count]) => count === 2)
+      .map(([value, count]) => parseInt(value, 10));
+
+    // Find the remaining value in the case of tie breakers
+    const kicker = Object.keys(valueCounts).find(
+      (value) => valueCounts[value] === 1
+    );
+
+    // Sort the pair values from highest to lowest
+    pairValues.sort((a, b) => b - a);
+
+    // If the hand has 2 pair and a kicker
+    return pairValues.length === 2 && kicker
+      ? [...pairValues, parseInt(kicker, 10)]
+      : false;
   };
 
   const straight = () => {
@@ -117,16 +125,26 @@ const Game = () => {
         return false;
       }
     }
-    return true;
+    // Return the tiebreaker value (highest card)
+    return uniqueValues[uniqueValues.length - 1];
   };
 
   const flush = () => {
     const suits = new Set(hand.map((card) => card.suit));
-    return suits.size === 1;
+    const handSorted = hand.sort((a, b) => {
+      b.value - a.value;
+    });
+    return suits.size === 1 ? handSorted[0] : false;
   };
 
   const straightFlush = (hand) => {
-    return flush(hand) && straight(hand);
+    if (flush(hand) && straight(hand)) {
+      const handSorted = hand.sort((a, b) => {
+        b.value - a.value;
+      });
+      return handSorted[0];
+    }
+    return false;
   };
 
   const royalFlush = () => {
@@ -145,8 +163,13 @@ const Game = () => {
 
   const evaluateHand = () => {
     for (const handType of handTypes) {
-      if (handType.evaluator(hand)) {
-        setHandRank({ type: handType.type, level: handType.level });
+      const tieBreaker = handType.evaluator(hand);
+      if (tieBreaker) {
+        setHandRank({
+          type: handType.type,
+          level: handType.level,
+          tieBreaker: tieBreaker,
+        });
         return;
       }
     }
@@ -188,15 +211,34 @@ const Game = () => {
   };
 
   const evaluateWinner = () => {
-    let highestRank = 0;
-    let currentWinner = {}
-    for (const player of players) {
-      if (player.rank.level > highestRank) {
-        highestRank = player.rank.level;
-        currentWinner = player
+    // Sort players from highest hand rank to lowest
+    const sortedHand = players.sort((a, b) => b.rank.level - a.rank.level);
+    const highestRank = sortedHand[0].rank.level;
+    // Filter for players that also have the highest hand rank
+    const highestHands = players.filter(
+      (player) => player.rank.level === highestRank
+    );
+
+    if (highestHands.length === 1) {
+      return highestHands[0];
+    }
+
+    if (highestHands[0].rank.type === "High Card") {
+      for (const hand of highestHands) {
+        hand.hand.sort(b - a);
+      }
+      let bestHand = highestHands[0];
+      for (let i = 0; i < highestHands.length; i++) {
+        for (let j = 0; j < highestHands[i].hand.length; j++) {
+          if (highestHands[i].hand[j].value > bestHand.hand[j].value) {
+            bestHand = highestHands[i];
+            break
+          }else if(highestHands[i].hand[j].value > bestHand.hand[j].value){
+            break
+          }
+        }
       }
     }
-    setWinner(currentWinner);
   };
 
   useEffect(() => {
