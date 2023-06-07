@@ -224,21 +224,51 @@ const Game = () => {
     }
 
     if (highestHands[0].rank.type === "High Card") {
-      for (const hand of highestHands) {
-        hand.hand.sort(b - a);
+      return highCardTieBreaker(highestHands);
+    }
+  };
+
+  // If multiple players have a high card rank 
+  // Iterate through their hands finding the highest unique card 
+  // throughout all of the hands
+  // COME BACK AND SIMPLIFY
+  const highCardTieBreaker = (hands) => {
+    const cardValueCount = {};
+
+    // Track the amount of times a card appear across all hands
+    for (const hand of hands) {
+      for (const card of hand.hand) {
+        cardValueCount[card.value] = (cardValueCount[card.value] || 0) + 1;
       }
-      let bestHand = highestHands[0];
-      for (let i = 0; i < highestHands.length; i++) {
-        for (let j = 0; j < highestHands[i].hand.length; j++) {
-          if (highestHands[i].hand[j].value > bestHand.hand[j].value) {
-            bestHand = highestHands[i];
-            break
-          }else if(highestHands[i].hand[j].value > bestHand.hand[j].value){
-            break
-          }
+    }
+
+    let highestUniqueCard = 0;
+
+    // Find the highest unique card across all hands
+    for (const value in cardValueCount) {
+      if (cardValueCount[parseInt(value)] === 1 && parseInt(value)  > highestUniqueCard) {
+        highestCard = value;
+      }
+    }
+
+    // If all players have the same hand return them all
+    if (highestUniqueCard === 0) {
+      return hands;
+    }
+
+    let winner;
+
+    // Get the player which has the hand that contains the winning card
+    for (const hand of hands) {
+      if(hand.hand.includes())
+      for (const card of hand.hand) {
+        if (card.value === highestCard) {
+          winner = hand;
         }
       }
     }
+
+    return winner;
   };
 
   useEffect(() => {
