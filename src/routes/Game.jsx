@@ -223,8 +223,14 @@ const Game = () => {
       return highestHands[0];
     }
 
-    if (highestHands[0].rank.type === "High Card") {
+    const rankType = highestHands[0].rank.type
+
+    if (rankType === "High Card") {
       return highCardTieBreaker(highestHands);
+    }else if(rankType === "One Pair" || rankType === "Two Pair"){
+      // Do stuff
+    }else{
+      // Do stuff 
     }
   };
 
@@ -234,30 +240,24 @@ const Game = () => {
   // COME BACK AND SIMPLIFY
   const highCardTieBreaker = (hands) => {
     const cardValueCount = {};
-
     // Track the amount of times a card appear across all hands
     for (const hand of hands) {
       for (const card of hand.hand) {
         cardValueCount[card.value] = (cardValueCount[card.value] || 0) + 1;
       }
     }
-
     let highestUniqueCard = 0;
-
     // Find the highest unique card across all hands
     for (const value in cardValueCount) {
       if (cardValueCount[parseInt(value)] === 1 && parseInt(value)  > highestUniqueCard) {
         highestCard = value;
       }
     }
-
     // If all players have the same hand return them all
     if (highestUniqueCard === 0) {
       return hands;
     }
-
     let winner;
-
     // Get the player which has the hand that contains the winning card
     for (const hand of hands) {
       if(hand.hand.includes())
