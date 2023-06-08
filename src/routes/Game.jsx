@@ -16,13 +16,7 @@ const Game = () => {
   const [deck, setDeck] = useState(createDeck());
   const [hand, setHand] = useState([]);
   const [handRank, setHandRank] = useState("");
-  const [players, setPlayers] = useState([
-    { suit: "Hearts", value: 7 },
-    { suit: "Clubs", value: 7 },
-    { suit: "Spades", value: 9 },
-    { suit: "Diamonds", value: 10 },
-    { suit: "Hearts", value: 11 },
-  ]);
+  const [players, setPlayers] = useState([]);
   const [winner, setWinner] = useState({});
 
   const handTypes = [
@@ -42,7 +36,7 @@ const Game = () => {
     const deck = [];
 
     for (const suit of suits) {
-      for (let i = 1; i < 14; i++) {
+      for (let i = 2; i < 15; i++) {
         const card = {
           suit: suit,
           value: i,
@@ -55,7 +49,7 @@ const Game = () => {
   }
 
   const calculateHandStrength = (cards) => {
-    const multipliers = [100000, 10000, 100, 10, 1];
+    const multipliers = [10000, 1000, 100, 10, 1];
     let totalSum = 0;
 
     for (let i = 0; i < cards.length; i++) {
@@ -88,12 +82,12 @@ const Game = () => {
       }
 
       if (valueCounts[value] === count) {
-        const multipleCardValue = parseInt(valueCounts[value], 10);
+        const multipleCardValue = parseInt(value, 10);
         // If it is one pair
         if (count === 2) {
           const currentHand = hand;
           currentHand.sort((a, b) => {
-            b.value - a.value;
+            return b.value - a.value;
           });
           // Shift the pair to the front of the array
           currentHand.sort((a, b) => {
@@ -133,7 +127,9 @@ const Game = () => {
     );
 
     // Sort the pair values from highest to lowest
-    pairValues.sort((a, b) => b - a);
+    pairValues.sort((a, b) => {
+      return b - a;
+    });
 
     if (pairValues.length === 2) {
       const multipliers = [100, 10, 1];
@@ -161,7 +157,7 @@ const Game = () => {
     uniqueValues = [...uniqueValues];
 
     uniqueValues.sort((a, b) => {
-      b - a;
+      return b - a;
     });
 
     // Iterate over unique values, checking if the current value
@@ -186,7 +182,7 @@ const Game = () => {
   const straightFlush = (hand) => {
     if (flush(hand) && straight(hand)) {
       const handSorted = hand.sort((a, b) => {
-        b.value - a.value;
+        return b.value - a.value;
       });
       return handSorted[0];
     }
@@ -220,14 +216,14 @@ const Game = () => {
       }
     }
     const currentHand = hand.sort((a, b) => {
-      a.value - b.value;
+      return a.value - b.value;
     });
     const handStrength = calculateHandStrength(currentHand);
     setHandRank({ type: "High Card", level: 1, tieBreaker: handStrength });
   };
 
   const convertToFaceValue = (value) => {
-    if (value === 1) {
+    if (value === 14) {
       return "Ace";
     } else if (value === 13) {
       return "King";
@@ -261,9 +257,10 @@ const Game = () => {
   };
 
   const evaluateWinner = () => {
-    console.log("this is running")
     // Sort players from highest hand rank to lowest
-    const sortedPlayers = players.sort((a, b) => b.rank.level - a.rank.level);
+    const sortedPlayers = players.sort((a, b) => {
+      return b.rank.level - a.rank.level;
+    });
     const highestRank = sortedPlayers[0].rank.level;
     // Filter for players that also have the highest hand rank
     const highestHands = players.filter(
@@ -290,15 +287,43 @@ const Game = () => {
     }
   };
 
+  const handleCardSwap = () => {};
+
+  const updateDeck = () => {
+    // Flattens all players into one array
+    const playerCards = players.flatMap((player) => player.hand);
+    // Filter all players cards from that deck
+    const updatedDeck = deck.filter((card) =>
+      !playerCards.some(
+        (playerCard) =>
+          playerCard.suit === card.suit && playerCard.value === card.value
+      )
+    );
+
+    setDeck(updatedDeck)
+  };
+
   useEffect(() => {
     if (authContext.uid === location.state.owner) {
-      dealPlayersInitialCards(deck, location.state.gameId);
+      const startingDeck = [...deck];
+      dealPlayersInitialCards(startingDeck, location.state.gameId);
     }
     getPlayers(location.state.gameId, setPlayers, setHand, authContext.uid);
   }, []);
 
   useEffect(() => {
-    if (players.length > 0) {
+    const playerCount = location.state.playerAmount;
+    const allPlayersHaveCards = players.every(
+      (player) => player?.hand?.length === 5
+    );
+    if (players.length == playerCount && allPlayersHaveCards) {
+      updateDeck();
+    }
+  }, [players]);
+
+  useEffect(() => {
+    const playerCount = location.state.playerAmount;
+    if (players.length > playerCount) {
       const allPlayersHavePlayed = players.every(
         (player) => player?.rank !== undefined
       );
@@ -328,6 +353,7 @@ const Game = () => {
           {hand?.map((card, idx) => (
             <span style={{ margin: "10px" }} key={`card-${idx}`}>
               {`${convertToFaceValue(card.value)} of ${card.suit}`}
+              <button onClick={() => handleCardSwap(card)}>SWAP</button>
             </span>
           ))}
           <button onClick={evaluateHand}>Evaluate</button>
