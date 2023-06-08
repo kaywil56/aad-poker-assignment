@@ -20,6 +20,7 @@ const Game = () => {
   const [players, setPlayers] = useState([]);
   const [winner, setWinner] = useState({});
   const [selectedCards, setSelectedCards] = useState([]);
+  const [alreadySwapped, setAlreadySwapped] = useState(false);
 
   const handTypes = [
     { type: "Royal Flush", level: 10, evaluator: () => royalFlush() },
@@ -349,27 +350,32 @@ const Game = () => {
   }
 
   const updateSelectedCards = (card) => {
-    let isSelected = checkIfSelected(card);
-    if (isSelected) {
-      const currentSelectedCards = selectedCards.filter(
-        (selectedCard) => selectedCard.id !== card.id
-      );
-      setSelectedCards(currentSelectedCards);
-    } else {
-      setSelectedCards([...selectedCards, card]);
+    if (!alreadySwapped) {
+      let isSelected = checkIfSelected(card);
+      if (isSelected) {
+        const currentSelectedCards = selectedCards.filter(
+          (selectedCard) => selectedCard.id !== card.id
+        );
+        setSelectedCards(currentSelectedCards);
+      } else {
+        setSelectedCards([...selectedCards, card]);
+      }
     }
   };
 
   const handleCardSwap = () => {
-    // Remove cards from hand that are in the selected cards array
-    const updatedHand = hand.filter((card) => {
-      return !selectedCards.some(
-        (selectedCard) =>
-          selectedCard.value === card.value && selectedCard.suit === card.suit
-      );
-    });
+    if (!alreadySwapped) {
+      // Remove cards from hand that are in the selected cards array
+      const updatedHand = hand.filter((card) => {
+        return !selectedCards.some(
+          (selectedCard) =>
+            selectedCard.value === card.value && selectedCard.suit === card.suit
+        );
+      });
 
-    setHand(updatedHand);
+      setHand(updatedHand);
+      setAlreadySwapped(true);
+    }
   };
 
   const checkIfSelected = (card) => {
@@ -402,7 +408,7 @@ const Game = () => {
               </div>
             ))}
           </div>
-          {selectedCards.length > 0 && (
+          {selectedCards.length > 0 && !alreadySwapped && (
             <button onClick={handleCardSwap}>SWAP</button>
           )}
           {isPlayerTurn() && <button onClick={stand}>Stand</button>}
