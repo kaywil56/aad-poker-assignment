@@ -9,6 +9,7 @@ import Players from "../components/Game/Players";
 import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
 import GameOver from "../components/Game/GameOver";
+import "./Game.css";
 
 const Game = () => {
   const { authContext } = useContext(AuthContext);
@@ -18,6 +19,7 @@ const Game = () => {
   const [handRank, setHandRank] = useState("");
   const [players, setPlayers] = useState([]);
   const [winner, setWinner] = useState({});
+  const [selectedCards, setSelectedCards] = useState([]);
 
   const handTypes = [
     { type: "Royal Flush", level: 10, evaluator: () => royalFlush() },
@@ -287,20 +289,19 @@ const Game = () => {
     }
   };
 
-  const handleCardSwap = () => {};
-
   const updateDeck = () => {
     // Flattens all players into one array
     const playerCards = players.flatMap((player) => player.hand);
     // Filter all players cards from that deck
-    const updatedDeck = deck.filter((card) =>
-      !playerCards.some(
-        (playerCard) =>
-          playerCard.suit === card.suit && playerCard.value === card.value
-      )
+    const updatedDeck = deck.filter(
+      (card) =>
+        !playerCards.some(
+          (playerCard) =>
+            playerCard.suit === card.suit && playerCard.value === card.value
+        )
     );
 
-    setDeck(updatedDeck)
+    setDeck(updatedDeck);
   };
 
   useEffect(() => {
@@ -317,13 +318,16 @@ const Game = () => {
       (player) => player?.hand?.length === 5
     );
     if (players.length == playerCount && allPlayersHaveCards) {
+      if (players.rank === undefined) {
+        evaluateHand();
+      }
       updateDeck();
     }
   }, [players]);
 
   useEffect(() => {
     const playerCount = location.state.playerAmount;
-    if (players.length > playerCount) {
+    if (players.length === playerCount) {
       const allPlayersHavePlayed = players.every(
         (player) => player?.rank !== undefined
       );
@@ -344,19 +348,63 @@ const Game = () => {
     return <Navigate to="/" />;
   }
 
+  const updateSelectedCards = (card) => {
+    let isSelected = checkIfSelected(card);
+    if (isSelected) {
+      const currentSelectedCards = selectedCards.filter(
+        (selectedCard) => selectedCard.id !== card.id
+      );
+      setSelectedCards(currentSelectedCards);
+    } else {
+      setSelectedCards([...selectedCards, card]);
+    }
+  };
+
+  const handleCardSwap = () => {
+    // Remove cards from hand that are in the selected cards array
+    const updatedHand = hand.filter((card) => {
+      return !selectedCards.some(
+        (selectedCard) =>
+          selectedCard.value === card.value && selectedCard.suit === card.suit
+      );
+    });
+
+    setHand(updatedHand);
+  };
+
+  const checkIfSelected = (card) => {
+    const isSelected = selectedCards.some(
+      (selectedCard) =>
+        selectedCard.value === card.value && selectedCard.suit === card.suit
+    );
+    return isSelected;
+  };
+
+  console.log(selectedCards);
+
   return (
     <>
       {!winner.playerId ? (
         <div>
           <Players players={players} />
           <p>Hand Rank: {handRank.type}</p>
-          {hand?.map((card, idx) => (
-            <span style={{ margin: "10px" }} key={`card-${idx}`}>
-              {`${convertToFaceValue(card.value)} of ${card.suit}`}
-              <button onClick={() => handleCardSwap(card)}>SWAP</button>
-            </span>
-          ))}
-          <button onClick={evaluateHand}>Evaluate</button>
+          <div className="hand">
+            {hand?.map((card, idx) => (
+              <div
+                onClick={() => updateSelectedCards(card)}
+                className="card"
+                style={{
+                  backgroundColor: checkIfSelected(card) ? "grey" : "gainsboro",
+                }}
+                key={`card-${idx}`}
+              >
+                {`${convertToFaceValue(card.value)} of ${card.suit}`}
+              </div>
+            ))}
+          </div>
+          {selectedCards.length > 0 && (
+            <button onClick={handleCardSwap}>SWAP</button>
+          )}
           {isPlayerTurn() && <button onClick={stand}>Stand</button>}
         </div>
       ) : (

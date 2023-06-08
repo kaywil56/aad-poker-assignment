@@ -1,0 +1,16 @@
+.card{
+    margin: 10px;
+    width: 100px;
+    height: 175px;
+    background-color: gainsboro;
+    border:  1px solid gainsboro;
+}
+
+.card:hover{
+    border: 1px solid #333;
+}
+
+.hand{
+    display: flex;
+}
+
