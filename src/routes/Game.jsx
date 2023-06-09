@@ -65,7 +65,7 @@ const Game = () => {
     return totalSum;
   };
 
-  const fullHouse = (hand) => {
+  const fullHouse = () => {
     const tieBreaker = multiples(hand, 3);
     if (multiples(hand, 2) && tieBreaker) {
       return tieBreaker;
@@ -184,8 +184,8 @@ const Game = () => {
     return suits.size === 1 ? handStrength : false;
   };
 
-  const straightFlush = (hand) => {
-    if (flush(hand) && straight(hand)) {
+  const straightFlush = () => {
+    if (flush() && straight()) {
       const handSorted = [...hand].sort((a, b) => {
         return b.value - a.value;
       });
@@ -210,7 +210,7 @@ const Game = () => {
 
   const evaluateHand = () => {
     for (const handType of handTypes) {
-      const tieBreaker = handType.evaluator(hand);
+      const tieBreaker = handType.evaluator();
       if (tieBreaker) {
         setHandRank({
           type: handType.type,
@@ -265,7 +265,7 @@ const Game = () => {
 
   const evaluateWinner = () => {
     // Sort players from highest hand rank to lowest
-    const sortedPlayers = players.sort((a, b) => {
+    const sortedPlayers = [...players].sort((a, b) => {
       return b.rank.level - a.rank.level;
     });
     const highestRank = sortedPlayers[0].rank.level;
@@ -297,8 +297,7 @@ const Game = () => {
   useEffect(() => {
     const get = async () => {
       if (authContext.uid === location.state.owner) {
-        const startingDeck = [...deck];
-        dealPlayersInitialCards(startingDeck, location.state.gameId);
+        await dealPlayersInitialCards([...deck], location.state.gameId);
       }
       await getPlayers(
         location.state.gameId,
@@ -375,8 +374,6 @@ const Game = () => {
         discardCards(location.state.gameId, authContext.uid, selectedCards),
       ]);
 
-      evaluateHand();
-
       setAlreadySwapped(true);
     }
   };
@@ -388,9 +385,9 @@ const Game = () => {
       .flatMap((player) => [player.hand, player.discardPile])
       .flat();
 
-    console.log("=================== Combined Cards ===================");
+    console.log("=================== Dealt Cards ===================");
     console.log(dealtCards);
-    console.log("=================== Combined Cards ===================");
+    console.log("=================== Dealt Cards ===================");
 
     // Filter out all dealt cards from the deck
     const cardsAvailable = deck.filter(
@@ -446,6 +443,7 @@ const Game = () => {
             <button onClick={handleCardSwap}>SWAP</button>
           )}
           {isPlayerTurn() && <button onClick={check}>Check</button>}
+          <button onClick={testGetCards}>test</button>
         </div>
       ) : (
         <GameOver winner={winner} />

@@ -85,7 +85,7 @@ export const getPlayers = async (gameId, setPlayers, setHand, uid) => {
         discardPile: doc.data().discardPile
       });
     });
-    players.sort((a, b) => b.isTurn - a.isTurn);
+    players.reverse();
     setPlayers(players);
   });
 
