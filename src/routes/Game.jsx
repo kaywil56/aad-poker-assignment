@@ -6,7 +6,17 @@ import {
   dealPlayersInitialCards,
   updateHand,
   discardCards,
-} from "../firestore.functions";
+} from "../firestoreFunctions";
+import {
+  fullHouse,
+  multiples,
+  twoPair,
+  straight,
+  flush,
+  straightFlush,
+  royalFlush,
+  calculateHandStrength,
+} from "../handEvaluations";
 import Players from "../components/Game/Players";
 import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
@@ -24,15 +34,27 @@ const Game = () => {
   const [alreadySwapped, setAlreadySwapped] = useState(false);
 
   const handTypes = [
-    { type: "Royal Flush", level: 10, evaluator: () => royalFlush() },
-    { type: "Straight Flush", level: 9, evaluator: () => straightFlush() },
-    { type: "Four of a Kind", level: 8, evaluator: () => multiples(4) },
-    { type: "Full House", level: 7, evaluator: () => fullHouse() },
-    { type: "Flush", level: 6, evaluator: () => flush() },
-    { type: "Straight", level: 5, evaluator: () => straight() },
-    { type: "Three of a Kind", level: 4, evaluator: () => multiples(3) },
-    { type: "Two Pair", level: 3, evaluator: () => twoPair() },
-    { type: "One Pair", level: 2, evaluator: () => multiples(2) },
+    { type: "Royal Flush", level: 10, evaluator: (hand) => royalFlush(hand) },
+    {
+      type: "Straight Flush",
+      level: 9,
+      evaluator: (hand) => straightFlush(hand),
+    },
+    {
+      type: "Four of a Kind",
+      level: 8,
+      evaluator: (hand) => multiples(hand, 4),
+    },
+    { type: "Full House", level: 7, evaluator: (hand) => fullHouse(hand) },
+    { type: "Flush", level: 6, evaluator: (hand) => flush(hand) },
+    { type: "Straight", level: 5, evaluator: (hand) => straight(hand) },
+    {
+      type: "Three of a Kind",
+      level: 4,
+      evaluator: (hand) => multiples(hand, 3),
+    },
+    { type: "Two Pair", level: 3, evaluator: (hand) => twoPair(hand) },
+    { type: "One Pair", level: 2, evaluator: (hand) => multiples(hand, 2) },
   ];
 
   function createDeck() {
@@ -54,163 +76,9 @@ const Game = () => {
 
   const deck = createDeck();
 
-  const calculateHandStrength = (cards) => {
-    const multipliers = [10000, 1000, 100, 10, 1];
-    let totalSum = 0;
-
-    for (let i = 0; i < cards.length; i++) {
-      totalSum += cards[i].value * multipliers[i];
-    }
-
-    return totalSum;
-  };
-
-  const fullHouse = () => {
-    const tieBreaker = multiples(hand, 3);
-    if (multiples(hand, 2) && tieBreaker) {
-      return tieBreaker;
-    }
-    return false;
-  };
-
-  // This function can be used for 1 pair, three of a kind and four of a kind
-  // by passing a value for the count paramater.
-  const multiples = (count) => {
-    const values = hand.map((card) => card.value);
-    const valueCounts = {};
-
-    for (let i = 0; i < values.length; i++) {
-      const value = values[i];
-      if (valueCounts[value]) {
-        valueCounts[value] += 1;
-      } else {
-        valueCounts[value] = 1;
-      }
-
-      if (valueCounts[value] === count) {
-        const multipleCardValue = parseInt(value, 10);
-        // If it is one pair
-        if (count === 2) {
-          const currentHand = [...hand].sort((a, b) => {
-            return b.value - a.value;
-          });
-          // Shift the pair to the front of the array
-          currentHand.sort((a, b) => {
-            if (a.value === multipleCardValue && b !== multipleCardValue) {
-              return -1;
-            } else if (a !== multipleCardValue && b === multipleCardValue) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-          const handStrength = calculateHandStrength(currentHand);
-          return handStrength;
-        }
-        return multipleCardValue;
-      }
-    }
-
-    return false;
-  };
-
-  const twoPair = () => {
-    const valueCounts = {};
-
-    // Track the amount of times a value appears in the hand
-    for (const card of hand) {
-      valueCounts[card.value] = (valueCounts[card.value] || 0) + 1;
-    }
-
-    const pairValues = Object.entries(valueCounts)
-      .filter(([value, count]) => count === 2)
-      .map(([value, count]) => parseInt(value, 10));
-
-    // Find the remaining value in the case of tie breakers
-    const kicker = Object.keys(valueCounts).find(
-      (value) => valueCounts[value] === 1
-    );
-
-    // Sort the pair values from highest to lowest
-    pairValues.sort((a, b) => {
-      return b - a;
-    });
-
-    if (pairValues.length === 2) {
-      const multipliers = [100, 10, 1];
-      const cards = [...pairValues, parseInt(kicker, 10)];
-      let tieBreaker = 0;
-      for (let i = 0; i < 3; i++) {
-        tieBreaker += cards[i] * multipliers[i];
-      }
-      return tieBreaker;
-    }
-
-    return false;
-  };
-
-  const straight = () => {
-    // Use a set to extract unique values only
-    let uniqueValues = new Set(hand.map((card) => card.value));
-
-    // Impossible to have a straight with less than 5 unique values
-    if (uniqueValues.size < 5) {
-      return false;
-    }
-
-    // Convert to array
-    uniqueValues = [...uniqueValues];
-
-    uniqueValues.sort((a, b) => {
-      return b - a;
-    });
-
-    // Iterate over unique values, checking if the current value
-    // is is equal to the previous value when you add 1
-    for (let i = 1; i < uniqueValues.length; i++) {
-      if (uniqueValues[i] !== uniqueValues[i - 1] + 1) {
-        return false;
-      }
-    }
-    return uniqueValues[0];
-  };
-
-  const flush = () => {
-    const suits = new Set(hand.map((card) => card.suit));
-    const handSorted = [...hand].sort((a, b) => {
-      b.value - a.value;
-    });
-    const handStrength = calculateHandStrength(handSorted);
-    return suits.size === 1 ? handStrength : false;
-  };
-
-  const straightFlush = () => {
-    if (flush() && straight()) {
-      const handSorted = [...hand].sort((a, b) => {
-        return b.value - a.value;
-      });
-      return handSorted[0];
-    }
-    return false;
-  };
-
-  const royalFlush = () => {
-    const requiredValues = ["10", "J", "K", "Q", "A"];
-
-    let meetsRequiredValues = true;
-
-    hand.forEach((card) => {
-      if (!requiredValues.includes(card.value)) {
-        meetsRequiredValues = false;
-      }
-    });
-
-    return flush(hand) && meetsRequiredValues;
-  };
-
   const evaluateHand = () => {
     for (const handType of handTypes) {
-      const tieBreaker = handType.evaluator();
+      const tieBreaker = handType.evaluator([...hand]);
       if (tieBreaker) {
         setHandRank({
           type: handType.type,
@@ -250,8 +118,6 @@ const Game = () => {
     const currentPlayerIdx = players.findIndex(
       (player) => player.id === authContext.uid
     );
-
-    console.log("current player: ", currentPlayerIdx);
 
     const nextPlayerIdx = currentPlayerIdx + 1;
     // If the current player is the last player
@@ -366,6 +232,8 @@ const Game = () => {
         );
       });
 
+      console.log(handWithCardsRemoved)
+
       const newCards = getNewCards(selectedCards.length);
       const updatedHand = [...handWithCardsRemoved, ...newCards];
 
@@ -385,10 +253,6 @@ const Game = () => {
       .flatMap((player) => [player.hand, player.discardPile])
       .flat();
 
-    console.log("=================== Dealt Cards ===================");
-    console.log(dealtCards);
-    console.log("=================== Dealt Cards ===================");
-
     // Filter out all dealt cards from the deck
     const cardsAvailable = deck.filter(
       (card) =>
@@ -397,10 +261,6 @@ const Game = () => {
             playerCard.suit === card.suit && playerCard.value === card.value
         )
     );
-
-    console.log("=================== Cards AV ===================");
-    console.log(cardsAvailable);
-    console.log("=================== Cards AV ===================");
 
     // Get new random cards based on the amount swapped
     for (let i = 0; i < amount; i++) {
@@ -443,7 +303,6 @@ const Game = () => {
             <button onClick={handleCardSwap}>SWAP</button>
           )}
           {isPlayerTurn() && <button onClick={check}>Check</button>}
-          <button onClick={testGetCards}>test</button>
         </div>
       ) : (
         <GameOver winner={winner} />

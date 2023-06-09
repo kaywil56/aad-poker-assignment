@@ -7,7 +7,7 @@ import {
   getGames,
   joinGame,
   startGame,
-} from "../firestore.functions";
+} from "../firestoreFunctions";
 
 const Session = () => {
   const { authContext } = useContext(AuthContext);
