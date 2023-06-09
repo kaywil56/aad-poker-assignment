@@ -91,8 +91,7 @@ const Game = () => {
         const multipleCardValue = parseInt(value, 10);
         // If it is one pair
         if (count === 2) {
-          const currentHand = hand;
-          currentHand.sort((a, b) => {
+          const currentHand = [...hand].sort((a, b) => {
             return b.value - a.value;
           });
           // Shift the pair to the front of the array
@@ -178,7 +177,7 @@ const Game = () => {
 
   const flush = () => {
     const suits = new Set(hand.map((card) => card.suit));
-    const handSorted = hand.sort((a, b) => {
+    const handSorted = [...hand].sort((a, b) => {
       b.value - a.value;
     });
     const handStrength = calculateHandStrength(handSorted);
@@ -187,7 +186,7 @@ const Game = () => {
 
   const straightFlush = (hand) => {
     if (flush(hand) && straight(hand)) {
-      const handSorted = hand.sort((a, b) => {
+      const handSorted = [...hand].sort((a, b) => {
         return b.value - a.value;
       });
       return handSorted[0];
@@ -221,7 +220,7 @@ const Game = () => {
         return;
       }
     }
-    const currentHand = hand.sort((a, b) => {
+    const currentHand = [...hand].sort((a, b) => {
       return a.value - b.value;
     });
     const handStrength = calculateHandStrength(currentHand);
