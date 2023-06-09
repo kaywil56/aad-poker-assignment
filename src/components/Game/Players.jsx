@@ -1,4 +1,4 @@
-const Players = ({ players }) => {
+const Players = ({ players, currentPlayerId }) => {
   return (
     <ul>
       {players.map((player, idx) => {
@@ -6,7 +6,9 @@ const Players = ({ players }) => {
           <li
             style={{ color: player.isTurn ? "green" : "black" }}
             key={`player-item-${idx}`}
-          >{`player${idx + 1}`}</li>
+          >
+            {currentPlayerId === player.playerId ? "you" : player.playerId}
+          </li>
         );
       })}
     </ul>

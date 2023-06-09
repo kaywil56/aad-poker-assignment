@@ -51,7 +51,7 @@ const Session = () => {
         state={{
           gameId: currentGameId,
           owner: games.find((game) => game.id === currentGameId)?.owner,
-          playerAmount: 1, // COME BACK AND CHANGE THIS
+          playerAmount: 2, // COME BACK AND CHANGE THIS
         }}
       />
     );

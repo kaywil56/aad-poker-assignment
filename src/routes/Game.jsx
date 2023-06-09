@@ -4,6 +4,8 @@ import {
   getPlayers,
   setNextPlayerTurn,
   dealPlayersInitialCards,
+  updateHand,
+  discardCards,
 } from "../firestore.functions";
 import Players from "../components/Game/Players";
 import { Navigate, useLocation } from "react-router-dom";
@@ -14,7 +16,6 @@ import "./Game.css";
 const Game = () => {
   const { authContext } = useContext(AuthContext);
   const location = useLocation();
-  const [deck, setDeck] = useState(createDeck());
   const [hand, setHand] = useState([]);
   const [handRank, setHandRank] = useState("");
   const [players, setPlayers] = useState([]);
@@ -50,6 +51,8 @@ const Game = () => {
 
     return deck;
   }
+
+  const deck = createDeck();
 
   const calculateHandStrength = (cards) => {
     const multipliers = [10000, 1000, 100, 10, 1];
@@ -239,7 +242,7 @@ const Game = () => {
     }
   };
 
-  const stand = async () => {
+  const check = async () => {
     await updateHandRank(location.state.gameId, authContext.uid, handRank);
     handleSetNextPlayerTurn();
   };
@@ -248,6 +251,8 @@ const Game = () => {
     const currentPlayerIdx = players.findIndex(
       (player) => player.id === authContext.uid
     );
+
+    console.log("current player: ", currentPlayerIdx);
 
     const nextPlayerIdx = currentPlayerIdx + 1;
     // If the current player is the last player
@@ -290,39 +295,29 @@ const Game = () => {
     }
   };
 
-  const updateDeck = () => {
-    // Flattens all players into one array
-    const playerCards = players.flatMap((player) => player.hand);
-    // Filter all players cards from that deck
-    const updatedDeck = deck.filter(
-      (card) =>
-        !playerCards.some(
-          (playerCard) =>
-            playerCard.suit === card.suit && playerCard.value === card.value
-        )
-    );
-
-    setDeck(updatedDeck);
-  };
-
   useEffect(() => {
-    if (authContext.uid === location.state.owner) {
-      const startingDeck = [...deck];
-      dealPlayersInitialCards(startingDeck, location.state.gameId);
-    }
-    getPlayers(location.state.gameId, setPlayers, setHand, authContext.uid);
+    const get = async () => {
+      if (authContext.uid === location.state.owner) {
+        const startingDeck = [...deck];
+        dealPlayersInitialCards(startingDeck, location.state.gameId);
+      }
+      await getPlayers(
+        location.state.gameId,
+        setPlayers,
+        setHand,
+        authContext.uid
+      );
+    };
+    get();
   }, []);
 
   useEffect(() => {
-    const playerCount = location.state.playerAmount;
-    const allPlayersHaveCards = players.every(
-      (player) => player?.hand?.length === 5
+    const currentPlayer = players.find(
+      (player) => player?.playerId === authContext.uid
     );
-    if (players.length == playerCount && allPlayersHaveCards) {
-      if (players.rank === undefined) {
-        evaluateHand();
-      }
-      updateDeck();
+
+    if (hand?.length === 5 && currentPlayer?.rank === undefined) {
+      evaluateHand();
     }
   }, [players]);
 
@@ -363,19 +358,61 @@ const Game = () => {
     }
   };
 
-  const handleCardSwap = () => {
+  const handleCardSwap = async () => {
     if (!alreadySwapped) {
       // Remove cards from hand that are in the selected cards array
-      const updatedHand = hand.filter((card) => {
+      const handWithCardsRemoved = hand.filter((card) => {
         return !selectedCards.some(
           (selectedCard) =>
             selectedCard.value === card.value && selectedCard.suit === card.suit
         );
       });
 
-      setHand(updatedHand);
+      const newCards = getNewCards(selectedCards.length);
+      const updatedHand = [...handWithCardsRemoved, ...newCards];
+
+      await Promise.all([
+        updateHand(location.state.gameId, authContext.uid, updatedHand),
+        discardCards(location.state.gameId, authContext.uid, selectedCards),
+      ]);
+
+      evaluateHand();
+
       setAlreadySwapped(true);
     }
+  };
+
+  const getNewCards = (amount) => {
+    const newCards = [];
+    // Combine all players discard piles and hands to find all dealt cards
+    const dealtCards = players
+      .flatMap((player) => [player.hand, player.discardPile])
+      .flat();
+
+    console.log("=================== Combined Cards ===================");
+    console.log(dealtCards);
+    console.log("=================== Combined Cards ===================");
+
+    // Filter out all dealt cards from the deck
+    const cardsAvailable = deck.filter(
+      (card) =>
+        !dealtCards.some(
+          (playerCard) =>
+            playerCard.suit === card.suit && playerCard.value === card.value
+        )
+    );
+
+    console.log("=================== Cards AV ===================");
+    console.log(cardsAvailable);
+    console.log("=================== Cards AV ===================");
+
+    // Get new random cards based on the amount swapped
+    for (let i = 0; i < amount; i++) {
+      newCards.push(
+        cardsAvailable[Math.floor(Math.random() * cardsAvailable.length)]
+      );
+    }
+    return newCards;
   };
 
   const checkIfSelected = (card) => {
@@ -386,13 +423,11 @@ const Game = () => {
     return isSelected;
   };
 
-  console.log(selectedCards);
-
   return (
     <>
       {!winner.playerId ? (
         <div>
-          <Players players={players} />
+          <Players players={players} currentPlayerId={authContext.uid} />
           <p>Hand Rank: {handRank.type}</p>
           <div className="hand">
             {hand?.map((card, idx) => (
@@ -411,7 +446,7 @@ const Game = () => {
           {selectedCards.length > 0 && !alreadySwapped && (
             <button onClick={handleCardSwap}>SWAP</button>
           )}
-          {isPlayerTurn() && <button onClick={stand}>Stand</button>}
+          {isPlayerTurn() && <button onClick={check}>Check</button>}
         </div>
       ) : (
         <GameOver winner={winner} />

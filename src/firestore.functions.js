@@ -48,6 +48,7 @@ export const joinGame = async (userId, gameId, isTurn) => {
   await setDoc(playersDocRef, {
     playerId: userId,
     isTurn: isTurn,
+    discardPile: []
   });
 };
 
@@ -59,7 +60,7 @@ export const startGame = async (gameId) => {
   });
 };
 
-export const getPlayers = (gameId, setPlayers, setHand, uid) => {
+export const getPlayers = async (gameId, setPlayers, setHand, uid) => {
   const playersCollectionRef = collection(
     firestore,
     "games",
@@ -80,10 +81,11 @@ export const getPlayers = (gameId, setPlayers, setHand, uid) => {
         playerId: doc.data().playerId,
         hand: doc.data().hand,
         isTurn: doc.data().isTurn,
-        rank: doc.data().rank
+        rank: doc.data().rank,
+        discardPile: doc.data().discardPile
       });
     });
-    players.reverse()
+    players.sort((a, b) => b.isTurn - a.isTurn);
     setPlayers(players);
   });
 
@@ -103,6 +105,14 @@ export const updateHandRank = async (gameId, playerId, handRank) => {
 
   await updateDoc(playerDocRef, {
     rank: handRank,
+  });
+};
+
+export const discardCards = async (gameId, playerId, discardedCards) => {
+  const playerDocRef = doc(firestore, "games", gameId, "players", playerId);
+
+  await updateDoc(playerDocRef, {
+    discardPile: discardedCards,
   });
 };
 
@@ -146,3 +156,5 @@ export const dealPlayersInitialCards = async (deck, gameId) => {
 
   await batch.commit();
 };
+
+
