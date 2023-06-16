@@ -2,29 +2,20 @@ import { useContext, useEffect, useState } from "react";
 import AuthContext from "../AuthContext";
 import { Navigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
-import {
-  createGame,
-  getGames,
-  joinGame,
-  startGame,
-} from "../firestoreFunctions";
+import { getGames, joinGame, startGame } from "../firestoreFunctions";
 import Game from "../components/Session/Game";
+import CreateGame from "../components/Session/CreateGame";
 
 const SessionRoute = () => {
   const { authContext } = useContext(AuthContext);
   const [currentGameId, setCurrentGameId] = useState(0);
 
   const auth = getAuth();
-  const [gameName, setGameName] = useState("");
   const [games, setGames] = useState([]);
 
-  const handleCreateGame = async (e) => {
-    e.preventDefault();
-    const gameId = await createGame(gameName, authContext.uid);
-    joinGame(authContext.uid, gameId, true);
-    setCurrentGameId(gameId);
-    setGameName("");
-  };
+  useEffect(() => {
+    getGames(setGames);
+  }, []);
 
   const handleJoinGame = (gameId) => {
     joinGame(authContext.uid, gameId, false);
@@ -34,10 +25,6 @@ const SessionRoute = () => {
   const handleStartGame = (gameId) => {
     startGame(gameId);
   };
-
-  useEffect(() => {
-    getGames(setGames);
-  }, []);
 
   // Protect route
   if (!authContext.uid) {
@@ -61,15 +48,7 @@ const SessionRoute = () => {
   return (
     <>
       <h2>Create Session</h2>
-      <form action="submit" onSubmit={handleCreateGame}>
-        <input
-          onChange={(e) => setGameName(e.target.value)}
-          type="text"
-          placeholder="Game name"
-          value={gameName}
-        />
-        <button type="submit">Create Game</button>
-      </form>
+      <CreateGame setCurrentGameId={setCurrentGameId} />
       <h2>Join Session</h2>
       <ul>
         {games.map((game, idx) => {
