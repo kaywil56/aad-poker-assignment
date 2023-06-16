@@ -11,18 +11,19 @@ import {
 } from "firebase/firestore";
 import firestore from "../firestore";
 
-export const createGame = async (gameName, ownerId) => {
+export const createGame = async (gameName, playerAmount, ownerId) => {
   const gameCollectionRef = collection(firestore, "games");
   const newGameDocRef = await addDoc(gameCollectionRef, {
     owner: ownerId,
     name: gameName,
+    playerAmount: playerAmount,
     started: false,
   });
 
   return newGameDocRef.id;
 };
 
-export const getGames = (setGames) => {
+export const getGames = async (setGames) => {
   const gameCollectionRef = collection(firestore, "games");
 
   const gamesQuery = query(gameCollectionRef);
@@ -34,6 +35,7 @@ export const getGames = (setGames) => {
         id: doc.id,
         name: doc.data().name,
         started: doc.data().started,
+        playerAmount: doc.data().playerAmount,
         owner: doc.data().owner,
       });
     });
@@ -48,7 +50,7 @@ export const joinGame = async (userId, gameId, isTurn) => {
   await setDoc(playersDocRef, {
     playerId: userId,
     isTurn: isTurn,
-    discardPile: []
+    discardPile: [],
   });
 };
 
@@ -82,7 +84,7 @@ export const getPlayers = async (gameId, setPlayers, setHand, uid) => {
         hand: doc.data().hand,
         isTurn: doc.data().isTurn,
         rank: doc.data().rank,
-        discardPile: doc.data().discardPile
+        discardPile: doc.data().discardPile,
       });
     });
     players.reverse();
@@ -156,5 +158,3 @@ export const dealPlayersInitialCards = async (deck, gameId) => {
 
   await batch.commit();
 };
-
-

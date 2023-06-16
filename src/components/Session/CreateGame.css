@@ -1,0 +1,27 @@
+.create-game-form-container {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .create-game-form-title {
+    text-align: center;
+  }
+  
+  .create-game-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+  
+  .create-game-form-label {
+    margin-bottom: 5px;
+  }
+  
+  .create-game-form-button {
+    width: 100%;
+    padding: 10px;
+    background-color: blue;
+    color: white;
+    border: none;
+  }
+  

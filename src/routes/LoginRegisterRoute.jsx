@@ -64,13 +64,15 @@ const LoginRegisterRoute = ({ text }) => {
           <button className="login-register-submit-button" type="submit">
             {text}
           </button>
+          {text == "Login" && (
+            <>
+              <p className="login-register-helper-text">
+                Dont have an account?
+              </p>
+              <Link to="/register">Click here to register</Link>
+            </>
+          )}
         </form>
-        {text == "Login" && (
-          <>
-            <p className="login-register-helper-text">Dont have an account?</p>
-            <Link to="/register">Click here to register</Link>
-          </>
-        )}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import LoginRegisterRoute from "./routes/LoginRegisterRoute";
 import SessionRoute from "./routes/SessionRoute";
 import GameRoute from "./routes/GameRoute";
 import AuthContext from "./AuthContext";
+import UserDetailsLayout from "./routes/UserDetailsLayout";
 
 const App = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const App = () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setAuthContext({ uid: user.uid, email: user.email, currentGame: {} });
-        navigate("/session");
+        navigate("/");
       } else {
         setAuthContext({});
       }
@@ -25,10 +26,15 @@ const App = () => {
   return (
     <AuthContext.Provider value={{ authContext, setAuthContext }}>
       <Routes>
-        <Route path="/" element={<LoginRegisterRoute text={"Login"} />} />
-        <Route path="/register" element={<LoginRegisterRoute text={"Register"} />} />
-        <Route path="/session" element={<SessionRoute />} />
-        <Route path="/game" element={<GameRoute />} />
+        <Route path="/login" element={<LoginRegisterRoute text={"Login"} />} />
+        <Route
+          path="/register"
+          element={<LoginRegisterRoute text={"Register"} />}
+        />
+        <Route path="/" element={<UserDetailsLayout />}>
+          <Route index element={<SessionRoute />} />
+          <Route path="/game" element={<GameRoute />} />
+        </Route>
       </Routes>
     </AuthContext.Provider>
   );

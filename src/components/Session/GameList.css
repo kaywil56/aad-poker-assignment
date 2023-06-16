@@ -1,0 +1,13 @@
+.game-list-title {
+    font-size: 24px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  
+  .game-list {
+    list-style-type: none;
+    padding: 0;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 10px 0;
+  }

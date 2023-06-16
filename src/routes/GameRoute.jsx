@@ -232,7 +232,7 @@ const GameRoute = () => {
         );
       });
 
-      console.log(handWithCardsRemoved)
+      console.log(handWithCardsRemoved);
 
       const newCards = getNewCards(selectedCards.length);
       const updatedHand = [...handWithCardsRemoved, ...newCards];

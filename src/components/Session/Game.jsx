@@ -1,25 +1,34 @@
 import { useContext } from "react";
 import AuthContext from "../../AuthContext";
+import { joinGame, startGame } from "../../firestoreFunctions";
+import "./Game.css";
 
-const Game = ({
-  key,
-  name,
-  id,
-  owner,
-  currentGameId,
-  handleJoinGame,
-  handleStartGame,
-}) => {
+const Game = ({ name, id, owner, currentGameId, setCurrentGameId }) => {
   const { authContext } = useContext(AuthContext);
 
+  const handleJoinGame = (gameId) => {
+    joinGame(authContext.uid, gameId, false);
+    setCurrentGameId(gameId);
+  };
+
+  const handleStartGame = (gameId) => {
+    startGame(gameId);
+  };
+
   return (
-    <li key={key}>
-      {name}
+    <li className="game-list-item">
+      <p>
+        <b>Name: </b> {name}
+      </p>
       {id !== currentGameId && (
-        <button onClick={() => handleJoinGame(id)}>Join</button>
+        <button className="join-button" onClick={() => handleJoinGame(id)}>
+          Join
+        </button>
       )}
       {owner === authContext.uid && (
-        <button onClick={() => handleStartGame(id)}>Start Game</button>
+        <button className="start-button" onClick={() => handleStartGame(id)}>
+          Start Game
+        </button>
       )}
     </li>
   );

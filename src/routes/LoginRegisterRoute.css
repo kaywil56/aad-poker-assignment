@@ -1,30 +1,46 @@
-.login-register-title {
-    text-transform: uppercase;
-    letter-spacing: .25em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.login-register-container{
-    width: 100%;
-    height: 100%;
-    display: grid;
-    place-items: center;
+.login-register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .login-register-form {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-register-title {
+  font-size: 24px;
+  margin-bottom: 20px;
 }
 
 .login-register-inputs {
-  padding: 5px;
-  margin: 3px 0;
+  width: 300px;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
 .login-register-submit-button {
-    margin-top: 10px;
-    border: 1px solid #212427;
-    padding: 5px;
+  width: 100%;
+  padding: 10px;
+  background-color: blue;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.login-register-helper-text {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.login-register-link {
+  text-align: center;
+  text-decoration: none;
+  color: blue;
 }
