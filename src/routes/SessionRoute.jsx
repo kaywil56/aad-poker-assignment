@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../AuthContext";
 import { Navigate } from "react-router-dom";
-import { getAuth, signOut } from "firebase/auth";
 import { getGames } from "../firestoreFunctions";
 import CreateGame from "../components/Session/CreateGame";
 import GameList from "../components/Session/GameList";
@@ -10,7 +9,6 @@ const SessionRoute = () => {
   const { authContext } = useContext(AuthContext);
   const [currentGameId, setCurrentGameId] = useState(0);
 
-  const auth = getAuth();
   const [games, setGames] = useState([]);
 
   useEffect(() => {
@@ -19,7 +17,7 @@ const SessionRoute = () => {
 
   // Protect route
   if (!authContext.uid) {
-    return <Navigate to="/" />;
+    return <Navigate to="/login" />;
   }
 
   const currentGame = games.find((game) => game.id === currentGameId);
@@ -48,7 +46,6 @@ const SessionRoute = () => {
           currentGameId={currentGameId}
         />
       </div>
-      <button onClick={() => signOut(auth)}>Sign out</button>
     </>
   );
 };

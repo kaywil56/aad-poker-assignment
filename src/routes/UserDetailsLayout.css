@@ -1,0 +1,37 @@
+#nav-title{
+    text-transform: uppercase;
+    letter-spacing: .25em;
+    font-size: large;
+    font-weight:bolder;
+    flex-grow: 1;
+}
+
+#user-details{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#user-details > p{
+    margin-right: 10px;
+}
+
+#sign-out{
+    margin-right: 10px;
+    background-color: transparent;
+    border: 2px solid white;
+    border-radius: 5px;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+
+nav{
+    display: flex;
+    background-color: #1e1c1c;
+    padding: 0 10px;
+    color: white;
+}
