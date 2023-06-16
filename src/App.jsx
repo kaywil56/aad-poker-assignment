@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import LoginRegister from "./routes/LoginRegister";
-import Session from "./routes/Session";
-import Game from "./routes/Game";
+import LoginRegisterRoute from "./routes/LoginRegisterRoute";
+import SessionRoute from "./routes/SessionRoute";
+import GameRoute from "./routes/GameRoute";
 import AuthContext from "./AuthContext";
 
 const App = () => {
@@ -25,10 +25,10 @@ const App = () => {
   return (
     <AuthContext.Provider value={{ authContext, setAuthContext }}>
       <Routes>
-        <Route path="/" element={<LoginRegister text={"Login"} />} />
-        <Route path="/register" element={<LoginRegister text={"Register"} />} />
-        <Route path="/session" element={<Session />} />
-        <Route path="/game" element={<Game />} />
+        <Route path="/" element={<LoginRegisterRoute text={"Login"} />} />
+        <Route path="/register" element={<LoginRegisterRoute text={"Register"} />} />
+        <Route path="/session" element={<SessionRoute />} />
+        <Route path="/game" element={<GameRoute />} />
       </Routes>
     </AuthContext.Provider>
   );

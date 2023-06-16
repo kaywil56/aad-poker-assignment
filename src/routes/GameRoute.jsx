@@ -21,9 +21,9 @@ import Players from "../components/Game/Players";
 import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
 import GameOver from "../components/Game/GameOver";
-import "./Game.css";
+import "./GameRoute.css";
 
-const Game = () => {
+const GameRoute = () => {
   const { authContext } = useContext(AuthContext);
   const location = useLocation();
   const [hand, setHand] = useState([]);
@@ -311,4 +311,4 @@ const Game = () => {
   );
 };
 
-export default Game;
+export default GameRoute;

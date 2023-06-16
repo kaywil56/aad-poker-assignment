@@ -6,9 +6,9 @@ import {
 import { Link } from "react-router-dom";
 import firestore from "../../firestore";
 import { useState } from "react";
-import "./LoginRegister.css";
+import "./LoginRegisterRoute.css";
 
-const LoginRegister = ({ text }) => {
+const LoginRegisterRoute = ({ text }) => {
   const auth = getAuth();
   const [userCredentials, setUserCredentials] = useState({
     email: "",
@@ -76,4 +76,4 @@ const LoginRegister = ({ text }) => {
   );
 };
 
-export default LoginRegister;
+export default LoginRegisterRoute;

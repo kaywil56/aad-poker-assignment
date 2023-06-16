@@ -8,8 +8,9 @@ import {
   joinGame,
   startGame,
 } from "../firestoreFunctions";
+import Game from "../components/Session/Game";
 
-const Session = () => {
+const SessionRoute = () => {
   const { authContext } = useContext(AuthContext);
   const [currentGameId, setCurrentGameId] = useState(0);
 
@@ -74,17 +75,15 @@ const Session = () => {
         {games.map((game, idx) => {
           if (!game.started) {
             return (
-              <li key={idx}>
-                {`${game.name}`}
-                {game.id !== currentGameId && (
-                  <button onClick={() => handleJoinGame(game.id)}>Join</button>
-                )}
-                {game.owner === authContext.uid && (
-                  <button onClick={() => handleStartGame(game.id)}>
-                    Start Game
-                  </button>
-                )}
-              </li>
+              <Game
+                key={idx}
+                name={game.name}
+                id={game.id}
+                owner={game.owner}
+                currentGameId={currentGameId}
+                handleJoinGame={handleJoinGame}
+                handleStartGame={handleStartGame}
+              />
             );
           }
         })}
@@ -95,4 +94,4 @@ const Session = () => {
   );
 };
 
-export default Session;
+export default SessionRoute;
