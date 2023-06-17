@@ -26,7 +26,7 @@ const SessionRoute = () => {
   if (currentGame?.started) {
     return (
       <Navigate
-        to="/game"
+        to="/session/game"
         state={{
           gameId: currentGameId,
           owner: currentGame?.owner,

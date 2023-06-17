@@ -22,6 +22,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import AuthContext from "../AuthContext";
 import GameOver from "../components/Game/GameOver";
 import "./GameRoute.css";
+import Hand from "../components/Game/Hand";
 
 const GameRoute = () => {
   const { authContext } = useContext(AuthContext);
@@ -30,8 +31,8 @@ const GameRoute = () => {
   const [handRank, setHandRank] = useState("");
   const [players, setPlayers] = useState([]);
   const [winner, setWinner] = useState({});
-  const [selectedCards, setSelectedCards] = useState([]);
   const [alreadySwapped, setAlreadySwapped] = useState(false);
+  const [selectedCards, setSelectedCards] = useState([]);
 
   const handTypes = [
     { type: "Royal Flush", level: 10, evaluator: (hand) => royalFlush(hand) },
@@ -93,20 +94,6 @@ const GameRoute = () => {
     });
     const handStrength = calculateHandStrength(currentHand);
     setHandRank({ type: "High Card", level: 1, tieBreaker: handStrength });
-  };
-
-  const convertToFaceValue = (value) => {
-    if (value === 14) {
-      return "Ace";
-    } else if (value === 13) {
-      return "King";
-    } else if (value === 12) {
-      return "Queen";
-    } else if (value === 11) {
-      return "Jack";
-    } else {
-      return value;
-    }
   };
 
   const check = async () => {
@@ -208,20 +195,6 @@ const GameRoute = () => {
     return <Navigate to="/" />;
   }
 
-  const updateSelectedCards = (card) => {
-    if (!alreadySwapped) {
-      let isSelected = checkIfSelected(card);
-      if (isSelected) {
-        const currentSelectedCards = selectedCards.filter(
-          (selectedCard) => selectedCard.id !== card.id
-        );
-        setSelectedCards(currentSelectedCards);
-      } else {
-        setSelectedCards([...selectedCards, card]);
-      }
-    }
-  };
-
   const handleCardSwap = async () => {
     if (!alreadySwapped) {
       // Remove cards from hand that are in the selected cards array
@@ -271,6 +244,20 @@ const GameRoute = () => {
     return newCards;
   };
 
+  const updateSelectedCards = (card) => {
+    if (!alreadySwapped) {
+      let isSelected = checkIfSelected(card);
+      if (isSelected) {
+        const currentSelectedCards = selectedCards.filter(
+          (selectedCard) => selectedCard.id !== card.id
+        );
+        setSelectedCards(currentSelectedCards);
+      } else {
+        setSelectedCards([...selectedCards, card]);
+      }
+    }
+  };
+
   const checkIfSelected = (card) => {
     const isSelected = selectedCards.some(
       (selectedCard) =>
@@ -282,27 +269,24 @@ const GameRoute = () => {
   return (
     <>
       {!winner.playerId ? (
-        <div>
+        <div className="poker-table">
           <Players players={players} currentPlayerId={authContext.uid} />
-          <p>Hand Rank: {handRank.type}</p>
-          <div className="hand">
-            {hand?.map((card, idx) => (
-              <div
-                onClick={() => updateSelectedCards(card)}
-                className="card"
-                style={{
-                  backgroundColor: checkIfSelected(card) ? "grey" : "gainsboro",
-                }}
-                key={`card-${idx}`}
-              >
-                {`${convertToFaceValue(card.value)} of ${card.suit}`}
+          <div className="hand-container">
+            <div className="hand-header">
+              <p className="hand-rank">Hand Rank: {handRank.type}</p>
+              <div className="hand-actions">
+                {selectedCards.length > 0 && !alreadySwapped && (
+                  <button onClick={handleCardSwap}>SWAP</button>
+                )}
+                {isPlayerTurn() && <button onClick={check}>Check</button>}
               </div>
-            ))}
+            </div>
+            <Hand
+              cards={hand}
+              updateSelectedCards={updateSelectedCards}
+              checkIfSelected={checkIfSelected}
+            />
           </div>
-          {selectedCards.length > 0 && !alreadySwapped && (
-            <button onClick={handleCardSwap}>SWAP</button>
-          )}
-          {isPlayerTurn() && <button onClick={check}>Check</button>}
         </div>
       ) : (
         <GameOver winner={winner} />

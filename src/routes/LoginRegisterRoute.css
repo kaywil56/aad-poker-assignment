@@ -12,6 +12,7 @@
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  background-color: #ccc;
 }
 
 .login-register-title {
@@ -25,15 +26,6 @@
   margin-bottom: 10px;
 }
 
-.login-register-submit-button {
-  width: 100%;
-  padding: 10px;
-  background-color: blue;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
 .login-register-helper-text {
   margin-bottom: 10px;
   text-align: center;
@@ -43,4 +35,20 @@
   text-align: center;
   text-decoration: none;
   color: blue;
+}
+
+.login-register-submit-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #1e1c1c;
+  cursor: pointer;
+  color: white;
+  border: 2px solid #ccc;
+  transition: 0.3s;
+}
+
+.login-register-submit-button:hover {
+  border: 2px solid #1e1c1c;
+  background-color: white;
+  color: #1e1c1c;
 }

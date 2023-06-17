@@ -33,6 +33,7 @@ const CreateGame = ({ setCurrentGameId }) => {
           placeholder="Game name"
           value={gameName}
           className="create-game-form-input"
+          required
         />
       </div>
       <div className="create-game-form-group">
@@ -44,6 +45,7 @@ const CreateGame = ({ setCurrentGameId }) => {
           max={5}
           value={playerAmount}
           className="create-game-form-input"
+          required
         />
       </div>
       <button type="submit" className="create-game-form-button">

@@ -1,0 +1,42 @@
+.card {
+  display: grid;
+  place-items: center;
+  height: 20vw;
+  width: 12vw;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  background-color: white;
+  margin: 3px;
+  border: 1px solid white;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.07);
+}
+
+.card-values {
+  color: #ff3322;
+}
+
+.card-number {
+  font-size: 2.5vw;
+}
+
+.card-suit {
+  font-size: 3vw;
+}
+
+.hand {
+  display: flex;
+}
+
+.hand-container {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  transform: translate(-50%, 0);
+}
+

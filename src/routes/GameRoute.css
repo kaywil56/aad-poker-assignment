@@ -1,16 +1,32 @@
-.card{
-    margin: 10px;
-    width: 100px;
-    height: 175px;
-    background-color: gainsboro;
-    border:  1px solid gainsboro;
+@import url("https://fonts.googleapis.com/css2?family=Yeseva+One&display=swap");
+
+.poker-table{
+    flex-grow: 1;
+    background-color: #35654d;
 }
 
-.card:hover{
-    border: 1px solid #333;
-}
-
-.hand{
+.hand-header{
     display: flex;
 }
 
+.hand-header > p{
+    flex-grow: 1;
+}
+
+.hand-header{
+    display: flex;
+    justify-content: center;
+}
+
+.hand-actions{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.hand-rank {
+    margin-left: 3px;
+    font-size: x-large;
+    font-family: "Yeseva One", cursive;
+    color: white;
+  }

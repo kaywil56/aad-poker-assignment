@@ -9,7 +9,7 @@ const UserDetailsLayout = () => {
 
   const { authContext } = useContext(AuthContext);
   return (
-    <>
+    <div className="layout-container">
       <nav>
         <p id="nav-title">Poker Room</p>
         <div id="user-details">
@@ -23,7 +23,7 @@ const UserDetailsLayout = () => {
         </div>
       </nav>
       <Outlet />
-    </>
+    </div>
   );
 };
 
