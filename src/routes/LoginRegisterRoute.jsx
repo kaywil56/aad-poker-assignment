@@ -23,35 +23,30 @@ const LoginRegisterRoute = ({
   const handleLoginRegister = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    if (text == "Login") {
-      try {
+    try {
+      if (text === "Login") {
         await signInWithEmailAndPassword(
           auth,
           userCredentials.email,
           userCredentials.password
         );
-      } catch (error) {
-        if (error.message === "Firebase: Error (auth/user-not-found).") {
-          setErrorMessage("User not found.");
-          console.log(errorMessage);
-        } else {
-          setErrorMessage("Something went wrong.");
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      try {
+      } else {
         await createUserWithEmailAndPassword(
           auth,
           userCredentials.email,
           userCredentials.password
         );
-      } catch (error) {
-        setErrorMessage("Something went wrong");
-      } finally {
-        setIsLoading(false);
       }
+    } catch (error) {
+      if (error.message === "Firebase: Error (auth/user-not-found).") {
+        setErrorMessage("User not found.");
+        console.log("User not found.", error);
+      } else {
+        setErrorMessage("Something went wrong.");
+        console.log("Something went wrong.", error);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -91,13 +86,19 @@ const LoginRegisterRoute = ({
           <button className="login-register-submit-button" type="submit">
             {text}
           </button>
-          {text == "Login" && (
+          {text == "Login" ? (
             <>
               <p className="login-register-helper-text">
                 Dont have an account?
               </p>
-              <Link to="/register">Click here to register</Link>
+              <Link onClick={() => setErrorMessage("")} to="/register">
+                Click here to register
+              </Link>
             </>
+          ) : (
+            <Link onClick={() => setErrorMessage("")} to="/">
+              Go Back
+            </Link>
           )}
         </form>
       </div>
