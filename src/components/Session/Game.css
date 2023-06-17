@@ -1,8 +1,10 @@
 .game-list-item {
   margin-bottom: 16px;
-  border: 1px solid black;
-  border-radius: 3px;
   padding: 3px;
+  -webkit-box-shadow: 0 10px 6px -6px #777;
+  -moz-box-shadow: 0 10px 6px -6px #777;
+  box-shadow: 0 10px 6px -6px #777;
+  background-color: rgb(184, 184, 184);
 }
 
 .game-list-item p {

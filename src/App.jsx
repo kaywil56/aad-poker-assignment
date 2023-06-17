@@ -6,30 +6,64 @@ import SessionRoute from "./routes/SessionRoute";
 import GameRoute from "./routes/GameRoute";
 import AuthContext from "./AuthContext";
 import UserDetailsLayout from "./routes/UserDetailsLayout";
+import { InfinitySpin } from "react-loader-spinner";
 
 const App = () => {
   const navigate = useNavigate();
   const auth = getAuth();
   const [authContext, setAuthContext] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setAuthContext({ uid: user.uid, email: user.email, currentGame: {} });
         navigate("/");
       } else {
         setAuthContext({});
       }
+      setIsLoading(false);
     });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
+
+  if (isLoading) {
+    const style = {
+      height: "100%",
+      width: "100%",
+      display: "grid",
+      placeItems: "center",
+    };
+    return (
+      <div style={style}>
+        <InfinitySpin
+          height="200"
+          width="200"
+          radius="9"
+          color="black"
+          ariaLabel="spinner-loading"
+          wrapperStyle
+          wrapperClass
+        />
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ authContext, setAuthContext }}>
       <Routes>
-        <Route path="/login" element={<LoginRegisterRoute text={"Login"} />} />
+        <Route
+          path="/login"
+          element={
+            <LoginRegisterRoute setIsLoading={setIsLoading} text={"Login"} />
+          }
+        />
         <Route
           path="/register"
-          element={<LoginRegisterRoute text={"Register"} />}
+          element={<LoginRegisterRoute setIsLoading={setIsLoading} text={"Register"} />}
         />
         <Route path="/" element={<UserDetailsLayout />}>
           <Route index element={<SessionRoute />} />

@@ -4,31 +4,39 @@ import {
   createUserWithEmailAndPassword,
 } from "firebase/auth";
 import { Link } from "react-router-dom";
-import firestore from "../../firestore";
 import { useState } from "react";
 import "./LoginRegisterRoute.css";
 
-const LoginRegisterRoute = ({ text }) => {
+const LoginRegisterRoute = ({ text, setIsLoading }) => {
   const auth = getAuth();
   const [userCredentials, setUserCredentials] = useState({
     email: "",
     password: "",
   });
 
-  const handleLoginRegister = (e) => {
+  const handleLoginRegister = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     if (text == "Login") {
-      signInWithEmailAndPassword(
-        auth,
-        userCredentials.email,
-        userCredentials.password
-      );
+      try {
+        await signInWithEmailAndPassword(
+          auth,
+          userCredentials.email,
+          userCredentials.password
+        );
+      } catch (error) {
+        setIsLoading(false);
+      }
     } else {
-      createUserWithEmailAndPassword(
-        auth,
-        userCredentials.email,
-        userCredentials.password
-      );
+      try {
+        await createUserWithEmailAndPassword(
+          auth,
+          userCredentials.email,
+          userCredentials.password
+        );
+      } catch (error) {
+        setIsLoading(false);
+      }
     }
   };
 
