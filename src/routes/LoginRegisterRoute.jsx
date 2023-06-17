@@ -6,9 +6,12 @@ import {
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./LoginRegisterRoute.css";
+import { InfinitySpin } from "react-loader-spinner";
 
-const LoginRegisterRoute = ({ text, setIsLoading }) => {
+const LoginRegisterRoute = ({ text, setIsLoading, isLoading }) => {
+  const [errorMessage, setErrorMessage] = useState("");
   const auth = getAuth();
+
   const [userCredentials, setUserCredentials] = useState({
     email: "",
     password: "",
@@ -25,6 +28,12 @@ const LoginRegisterRoute = ({ text, setIsLoading }) => {
           userCredentials.password
         );
       } catch (error) {
+        if (error.message === "Firebase: Error (auth/user-not-found).") {
+          setErrorMessage("User not found.");
+        } else {
+          setErrorMessage("Something went wrong.");
+        }
+      } finally {
         setIsLoading(false);
       }
     } else {
@@ -35,6 +44,8 @@ const LoginRegisterRoute = ({ text, setIsLoading }) => {
           userCredentials.password
         );
       } catch (error) {
+        setErrorMessage("Something went wrong");
+      } finally {
         setIsLoading(false);
       }
     }
@@ -43,6 +54,28 @@ const LoginRegisterRoute = ({ text, setIsLoading }) => {
   const updateCredentials = (e) => {
     setUserCredentials({ ...userCredentials, [e.target.name]: e.target.value });
   };
+
+  if (isLoading) {
+    const style = {
+      height: "100%",
+      width: "100%",
+      display: "grid",
+      placeItems: "center",
+    };
+    return (
+      <div style={style}>
+        <InfinitySpin
+          height="200"
+          width="200"
+          radius="9"
+          color="black"
+          ariaLabel="spinner-loading"
+          wrapperStyle
+          wrapperClass
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="login-register-container">
@@ -56,19 +89,23 @@ const LoginRegisterRoute = ({ text, setIsLoading }) => {
           <input
             className="login-register-inputs"
             onChange={updateCredentials}
-            type="text"
+            type="email"
             placeholder="email"
             name="email"
+            required
             value={userCredentials.email}
           />
           <input
             className="login-register-inputs"
             onChange={updateCredentials}
-            type="text"
+            type="password"
             placeholder="password"
             name="password"
+            minLength={6}
             value={userCredentials.password}
+            required
           />
+          {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
           <button className="login-register-submit-button" type="submit">
             {text}
           </button>

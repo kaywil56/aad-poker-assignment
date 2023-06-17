@@ -30,40 +30,28 @@ const App = () => {
     };
   }, []);
 
-  if (isLoading) {
-    const style = {
-      height: "100%",
-      width: "100%",
-      display: "grid",
-      placeItems: "center",
-    };
-    return (
-      <div style={style}>
-        <InfinitySpin
-          height="200"
-          width="200"
-          radius="9"
-          color="black"
-          ariaLabel="spinner-loading"
-          wrapperStyle
-          wrapperClass
-        />
-      </div>
-    );
-  }
-
   return (
     <AuthContext.Provider value={{ authContext, setAuthContext }}>
       <Routes>
         <Route
           path="/login"
           element={
-            <LoginRegisterRoute setIsLoading={setIsLoading} text={"Login"} />
+            <LoginRegisterRoute
+              setIsLoading={setIsLoading}
+              isLoading={isLoading}
+              text={"Login"}
+            />
           }
         />
         <Route
           path="/register"
-          element={<LoginRegisterRoute setIsLoading={setIsLoading} text={"Register"} />}
+          element={
+            <LoginRegisterRoute
+              setIsLoading={setIsLoading}
+              isLoading={isLoading}
+              text={"Register"}
+            />
+          }
         />
         <Route path="/" element={<UserDetailsLayout />}>
           <Route index element={<SessionRoute />} />
