@@ -17,7 +17,7 @@ const SessionRoute = () => {
 
   // Protect route
   if (!authContext.uid) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   const currentGame = games.find((game) => game.id === currentGameId);

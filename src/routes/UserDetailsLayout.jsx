@@ -17,7 +17,9 @@ const UserDetailsLayout = () => {
             <b>Email: </b>
             {authContext.email}
           </p>
-          <button id="sign-out" onClick={() => signOut(auth)}>Sign out</button>
+          <button id="sign-out" onClick={() => signOut(auth)}>
+            Sign out
+          </button>
         </div>
       </nav>
       <Outlet />

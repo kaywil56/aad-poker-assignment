@@ -6,10 +6,13 @@ import {
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./LoginRegisterRoute.css";
-import { InfinitySpin } from "react-loader-spinner";
 
-const LoginRegisterRoute = ({ text, setIsLoading, isLoading }) => {
-  const [errorMessage, setErrorMessage] = useState("");
+const LoginRegisterRoute = ({
+  text,
+  setIsLoading,
+  setErrorMessage,
+  errorMessage,
+}) => {
   const auth = getAuth();
 
   const [userCredentials, setUserCredentials] = useState({
@@ -30,6 +33,7 @@ const LoginRegisterRoute = ({ text, setIsLoading, isLoading }) => {
       } catch (error) {
         if (error.message === "Firebase: Error (auth/user-not-found).") {
           setErrorMessage("User not found.");
+          console.log(errorMessage);
         } else {
           setErrorMessage("Something went wrong.");
         }
@@ -54,28 +58,6 @@ const LoginRegisterRoute = ({ text, setIsLoading, isLoading }) => {
   const updateCredentials = (e) => {
     setUserCredentials({ ...userCredentials, [e.target.name]: e.target.value });
   };
-
-  if (isLoading) {
-    const style = {
-      height: "100%",
-      width: "100%",
-      display: "grid",
-      placeItems: "center",
-    };
-    return (
-      <div style={style}>
-        <InfinitySpin
-          height="200"
-          width="200"
-          radius="9"
-          color="black"
-          ariaLabel="spinner-loading"
-          wrapperStyle
-          wrapperClass
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="login-register-container">

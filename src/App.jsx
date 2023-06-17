@@ -13,12 +13,13 @@ const App = () => {
   const auth = getAuth();
   const [authContext, setAuthContext] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setAuthContext({ uid: user.uid, email: user.email, currentGame: {} });
-        navigate("/");
+        navigate("/session");
       } else {
         setAuthContext({});
       }
@@ -30,15 +31,39 @@ const App = () => {
     };
   }, []);
 
+  if (isLoading) {
+    const style = {
+      height: "100%",
+      width: "100%",
+      display: "grid",
+      placeItems: "center",
+    };
+    return (
+      <div style={style}>
+        <InfinitySpin
+          height="200"
+          width="200"
+          radius="9"
+          color="black"
+          ariaLabel="spinner-loading"
+          wrapperStyle
+          wrapperClass
+        />
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider value={{ authContext, setAuthContext }}>
       <Routes>
         <Route
-          path="/login"
+          path="/"
           element={
             <LoginRegisterRoute
               setIsLoading={setIsLoading}
               isLoading={isLoading}
+              setErrorMessage={setErrorMessage}
+              errorMessage={errorMessage}
               text={"Login"}
             />
           }
@@ -49,13 +74,15 @@ const App = () => {
             <LoginRegisterRoute
               setIsLoading={setIsLoading}
               isLoading={isLoading}
+              setErrorMessage={setErrorMessage}
+              errorMessage={errorMessage}
               text={"Register"}
             />
           }
         />
-        <Route path="/" element={<UserDetailsLayout />}>
+        <Route path="/session" element={<UserDetailsLayout />}>
           <Route index element={<SessionRoute />} />
-          <Route path="/game" element={<GameRoute />} />
+          <Route path="/session/game" element={<GameRoute />} />
         </Route>
       </Routes>
     </AuthContext.Provider>
