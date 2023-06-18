@@ -26,4 +26,12 @@ export default defineConfig({
       registerType: "autoUpdate",
     }),
   ],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "@testing-library/jest-dom",
+    coverage: {
+      reporter: ["text", "json", "html"],
+    },
+  },
 });

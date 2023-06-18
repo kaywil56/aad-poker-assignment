@@ -6,6 +6,7 @@ import {
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./LoginRegisterRoute.css";
+import firestore from "../../../firestore";
 
 const LoginRegisterRoute = ({
   text,

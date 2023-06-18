@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import LoginRegisterRoute from "./routes/LoginRegisterRoute";
+import LoginRegisterRoute from "./routes/LoginRegisterRoute/LoginRegisterRoute";
 import SessionRoute from "./routes/SessionRoute";
-import GameRoute from "./routes/GameRoute";
+import GameRoute from "./routes/GameRoute/GameRoute";
 import AuthContext from "./AuthContext";
 import UserDetailsLayout from "./routes/UserDetailsLayout";
 import { InfinitySpin } from "react-loader-spinner";

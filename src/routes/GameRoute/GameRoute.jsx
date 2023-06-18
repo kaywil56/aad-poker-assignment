@@ -6,7 +6,7 @@ import {
   dealPlayersInitialCards,
   updateHand,
   discardCards,
-} from "../firestoreFunctions";
+} from "../../firestoreFunctions";
 import {
   fullHouse,
   multiples,
@@ -16,13 +16,13 @@ import {
   straightFlush,
   royalFlush,
   calculateHandStrength,
-} from "../handEvaluations";
-import Players from "../components/Game/Players";
+} from "../../handEvaluations";
+import Players from "../../components/Game/Players";
 import { Navigate, useLocation } from "react-router-dom";
-import AuthContext from "../AuthContext";
-import GameOver from "../components/Game/GameOver";
+import AuthContext from "../../AuthContext";
+import GameOver from "../../components/Game/GameOver";
 import "./GameRoute.css";
-import Hand from "../components/Game/Hand";
+import Hand from "../../components/Game/Hand";
 
 const GameRoute = () => {
   const { authContext } = useContext(AuthContext);
