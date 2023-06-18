@@ -1,12 +1,9 @@
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./LoginRegisterRoute.css";
 import firestore from "../../../firestore";
+import { login, register } from "../../firestoreFunctions";
 
 const LoginRegisterRoute = ({
   text,
@@ -26,17 +23,9 @@ const LoginRegisterRoute = ({
     setIsLoading(true);
     try {
       if (text === "Login") {
-        await signInWithEmailAndPassword(
-          auth,
-          userCredentials.email,
-          userCredentials.password
-        );
+        await login(auth, userCredentials.email, userCredentials.password);
       } else {
-        await createUserWithEmailAndPassword(
-          auth,
-          userCredentials.email,
-          userCredentials.password
-        );
+        await register(auth, userCredentials.email, userCredentials.password);
       }
     } catch (error) {
       if (error.message === "Firebase: Error (auth/user-not-found).") {
@@ -98,7 +87,7 @@ const LoginRegisterRoute = ({
             </>
           ) : (
             <Link onClick={() => setErrorMessage("")} to="/">
-              Go Back
+              Go back
             </Link>
           )}
         </form>

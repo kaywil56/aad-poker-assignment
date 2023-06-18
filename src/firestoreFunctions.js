@@ -9,6 +9,10 @@ import {
   writeBatch,
   getDocs,
 } from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import firestore from "../firestore";
 
 export const createGame = async (gameName, playerAmount, ownerId) => {
@@ -157,4 +161,12 @@ export const dealPlayersInitialCards = async (deck, gameId) => {
   });
 
   await batch.commit();
+};
+
+export const login = async (auth, email, password) => {
+  await signInWithEmailAndPassword(auth, email, password);
+};
+
+export const register = async (auth, email, password) => {
+  await createUserWithEmailAndPassword(auth, email, password);
 };
