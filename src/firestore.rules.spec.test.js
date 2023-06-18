@@ -11,6 +11,9 @@ import {
   collection,
   addDoc,
   setDoc,
+  query,
+  getDocs,
+  updateDoc,
   deleteDoc,
 } from "firebase/firestore";
 
@@ -27,13 +30,14 @@ let testEnv = await initializeTestEnvironment({
   },
 });
 
-// afterAll(async () => {
-//   testEnv.clearFirestore();
-// });
+afterAll(async () => {
+  testEnv.clearFirestore();
+});
 
 describe("Valid actions", () => {
   test("An authenticated user can create a game", async () => {
     const userId = "userid1";
+    const gameId = "gameId1234";
     const mockGame = {
       name: "My test poker game",
       playerAmount: 2,
@@ -41,49 +45,75 @@ describe("Valid actions", () => {
       started: false,
     };
     const authenticatedUser = testEnv.authenticatedContext(userId);
-    const gameCollectionRef = collection(authenticatedUser.firestore(), "games");
-    await assertSucceeds(addDoc(gameCollectionRef, mockGame));
+    const gameDocRef = doc(authenticatedUser.firestore(), `games/${gameId}`);
+    await assertSucceeds(setDoc(gameDocRef, mockGame));
   });
 
-//   test("An authenticated user can read their todos with the same ID", async () => {
-//     const userId = "userid1";
-//     const todoId = "todoid1";
-//     const authenticatedUser = testEnv.authenticatedContext(userId);
-//     const userRef = doc(
-//       authenticatedUser.firestore(),
-//       `users/${userId}/todos/${todoId}`
-//     );
-//     // Try to read the document as the authenticated user
-//     await assertSucceeds(getDoc(userRef));
-//   });
+  test("An authenticated user can read all games", async () => {
+    const userId = "userid2";
+    const authenticatedUser = testEnv.authenticatedContext(userId);
+    // Try to read the document as the authenticated user
+    const q = query(collection(authenticatedUser.firestore(), "games"));
+    await assertSucceeds(getDocs(q));
+  });
 
-//   test("An authenticated user can update a todo to their own collection", async () => {
-//     const mockUpdateTodo = {
-//       title: "Shopping",
-//       description: "Buy milk, eggs, and bacon",
-//     };
-//     const todoId = "todoid1";
-//     const userId = "userid1";
-//     const authenticatedUser = testEnv.authenticatedContext(userId);
-//     const todoDocRef = doc(
-//       authenticatedUser.firestore(),
-//       `users/${userId}/todos/${todoId}`
-//     );
+  test("An authenticated user can start a game they created", async () => {
+    const userId = "userid1";
+    const gameId = "gameId1234";
+    const authenticatedUser = testEnv.authenticatedContext(userId);
+    const gameDocRef = doc(authenticatedUser.firestore(), `games/${gameId}`);
+    // Try to read the document as the authenticated user
+    await assertSucceeds(
+      updateDoc(gameDocRef, {
+        started: true,
+      })
+    );
+  });
 
-//     await assertSucceeds(setDoc(todoDocRef, mockUpdateTodo, { merge: true }));
-//   });
+  test("An authenticated user can join a game", async () => {
+    const userId = "userid2";
+    const gameId = "gameId1234";
+    const authenticatedUser = testEnv.authenticatedContext(userId);
+    const gameDocRef = doc(
+      authenticatedUser.firestore(),
+      `games/${gameId}/players/${userId}`
+    );
+    await assertSucceeds(
+      setDoc(gameDocRef, {
+        playerId: userId,
+        isTurn: false,
+        discardPile: [],
+      })
+    );
+  });
 
-//   test("An authenticated user can delete a todo to their own collection", async () => {
-//     const todoId = "todoid1";
-//     const userId = "userid1";
-//     const authenticatedUser = testEnv.authenticatedContext(userId);
-//     const todoDocRef = doc(
-//       authenticatedUser.firestore(),
-//       `users/${userId}/todos/${todoId}`
-//     );
+  //   test("An authenticated user can update a todo to their own collection", async () => {
+  //     const mockUpdateTodo = {
+  //       title: "Shopping",
+  //       description: "Buy milk, eggs, and bacon",
+  //     };
+  //     const todoId = "todoid1";
+  //     const userId = "userid1";
+  //     const authenticatedUser = testEnv.authenticatedContext(userId);
+  //     const todoDocRef = doc(
+  //       authenticatedUser.firestore(),
+  //       `users/${userId}/todos/${todoId}`
+  //     );
 
-//     await assertSucceeds(deleteDoc(todoDocRef));
-//   });
+  //     await assertSucceeds(setDoc(todoDocRef, mockUpdateTodo, { merge: true }));
+  //   });
+
+  //   test("An authenticated user can delete a todo to their own collection", async () => {
+  //     const todoId = "todoid1";
+  //     const userId = "userid1";
+  //     const authenticatedUser = testEnv.authenticatedContext(userId);
+  //     const todoDocRef = doc(
+  //       authenticatedUser.firestore(),
+  //       `users/${userId}/todos/${todoId}`
+  //     );
+
+  //     await assertSucceeds(deleteDoc(todoDocRef));
+  //   });
 });
 
 // describe("Invalid unauthenticated actions", () => {
