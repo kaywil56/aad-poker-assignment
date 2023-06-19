@@ -14,12 +14,14 @@ import {
   query,
   getDocs,
   updateDoc,
+  writeBatch,
   deleteDoc,
 } from "firebase/firestore";
+import { createDeck } from "./handEvaluations";
 
 const PROJECT_ID = "poker-pwa-assignment";
 
-let testEnv = await initializeTestEnvironment({
+const testEnv = await initializeTestEnvironment({
   projectId: PROJECT_ID,
   hub: {
     host: "localhost",
@@ -30,9 +32,9 @@ let testEnv = await initializeTestEnvironment({
   },
 });
 
-afterAll(async () => {
-  testEnv.clearFirestore();
-});
+// afterAll(async () => {
+//   testEnv.clearFirestore();
+// });
 
 describe("Valid actions", () => {
   test("An authenticated user can create a game", async () => {
@@ -85,6 +87,29 @@ describe("Valid actions", () => {
         discardPile: [],
       })
     );
+  });
+
+  test("An authenticated game owner can deal all players a hand", async () => {
+    const userId = "userid1";
+    const gameId = "gameId1234";
+    const deck = createDeck();
+    console.log("works");
+    const authenticatedUser = testEnv.authenticatedContext(userId);
+    const firestore = authenticatedUser.firestore();
+
+    const batch = writeBatch(firestore);
+
+    const shuffledDeck = deck.sort(() => Math.random() - 0.5);
+
+    const playersQuery = collection(firestore, "games", gameId, "players");
+    const playersSnapshot = await getDocs(playersQuery);
+
+    playersSnapshot.forEach((doc) => {
+      let hand = shuffledDeck.splice(0, 5);
+      batch.update(doc.ref, { hand: hand });
+    });
+
+    await assertSucceeds(batch.commit());
   });
 
   //   test("An authenticated user can update a todo to their own collection", async () => {

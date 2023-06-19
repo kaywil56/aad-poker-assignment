@@ -23,6 +23,10 @@
     "ui": {
       "enabled": true
     },
+    "hub": {
+      "port": 4400,
+      "host": "localhost"
+    },
     "singleProjectMode": true
   },
   "firestore": {

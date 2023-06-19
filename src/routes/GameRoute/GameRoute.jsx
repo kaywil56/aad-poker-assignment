@@ -16,6 +16,7 @@ import {
   straightFlush,
   royalFlush,
   calculateHandStrength,
+  createDeck
 } from "../../handEvaluations";
 import Players from "../../components/Game/Players";
 import { Navigate, useLocation } from "react-router-dom";
@@ -57,23 +58,6 @@ const GameRoute = () => {
     { type: "Two Pair", level: 3, evaluator: (hand) => twoPair(hand) },
     { type: "One Pair", level: 2, evaluator: (hand) => multiples(hand, 2) },
   ];
-
-  function createDeck() {
-    const suits = ["Spades", "Hearts", "Diamonds", "Clubs"];
-    const deck = [];
-
-    for (const suit of suits) {
-      for (let i = 2; i < 15; i++) {
-        const card = {
-          suit: suit,
-          value: i,
-        };
-        deck.push(card);
-      }
-    }
-
-    return deck;
-  }
 
   const deck = createDeck();
 

@@ -128,8 +128,8 @@ export const straightFlush = (hand) => {
 };
 
 export const royalFlush = (hand) => {
-    console.log("RF")
-    console.log(hand)
+  console.log("RF");
+  console.log(hand);
   const requiredValues = ["10", "J", "K", "Q", "A"];
 
   let meetsRequiredValues = true;
@@ -153,3 +153,20 @@ export const calculateHandStrength = (cards) => {
 
   return totalSum;
 };
+
+export function createDeck() {
+  const suits = ["Spades", "Hearts", "Diamonds", "Clubs"];
+  const deck = [];
+
+  for (const suit of suits) {
+    for (let i = 2; i < 15; i++) {
+      const card = {
+        suit: suit,
+        value: i,
+      };
+      deck.push(card);
+    }
+  }
+
+  return deck;
+}
