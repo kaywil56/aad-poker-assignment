@@ -112,6 +112,49 @@ describe("Valid actions", () => {
     await assertSucceeds(batch.commit());
   });
 
+  test("An authenticated user can update their own deck", async () => {
+    const userId = "userid2";
+    const gameId = "gameId1234";
+    const newCardsForSwap = [
+      {
+        suit: "Diamonds",
+        value: 7,
+      },
+      {
+        suit: "Diamonds",
+        value: 2,
+      },
+      {
+        suit: "Spades",
+        value: 4,
+      },
+      {
+        suit: "Clubs",
+        value: 3,
+      },
+    ];
+    const authenticatedUser = testEnv.authenticatedContext(userId);
+    const playerDocRef = doc(
+      authenticatedUser.firestore(),
+      `games/${gameId}/players/${userId}`
+    );
+    // Try to read the document as the authenticated user
+    await assertSucceeds(
+      updateDoc(playerDocRef, {
+        hand: newCardsForSwap,
+      })
+    );
+  });
+
+  test("A game owner can delete a their game", async () => {
+    const gameId = "gameId1234";
+    const userId = "userid1";
+    const authenticatedUser = testEnv.authenticatedContext(userId);
+    const gameDocRef = doc(authenticatedUser.firestore(), `games/${gameId}`);
+
+    await assertSucceeds(deleteDoc(gameDocRef));
+  });
+
   //   test("An authenticated user can update a todo to their own collection", async () => {
   //     const mockUpdateTodo = {
   //       title: "Shopping",
