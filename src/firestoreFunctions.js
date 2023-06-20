@@ -48,13 +48,14 @@ export const getGames = async (setGames) => {
   return () => unsubscribe();
 };
 
-export const joinGame = async (userId, gameId, isTurn) => {
+export const joinGame = async (userId, gameId, isTurn, email) => {
   const playersDocRef = doc(firestore, "games", gameId, "players", userId);
 
   await setDoc(playersDocRef, {
     playerId: userId,
     isTurn: isTurn,
     discardPile: [],
+    email: email
   });
 };
 
@@ -84,6 +85,7 @@ export const getPlayers = async (gameId, setPlayers, setHand, uid) => {
       }
       players.push({
         id: doc.id,
+        email: doc.data().email,
         playerId: doc.data().playerId,
         hand: doc.data().hand,
         isTurn: doc.data().isTurn,

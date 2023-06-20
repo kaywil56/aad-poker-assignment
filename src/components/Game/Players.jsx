@@ -7,7 +7,7 @@ const Players = ({ players, currentPlayerId }) => {
             style={{ color: player.isTurn ? "green" : "black" }}
             key={`player-item-${idx}`}
           >
-            {currentPlayerId === player.playerId ? "you" : player.playerId}
+            {currentPlayerId === player.playerId ? "you" : player.email}
           </li>
         );
       })}

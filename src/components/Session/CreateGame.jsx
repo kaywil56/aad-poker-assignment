@@ -11,7 +11,7 @@ const CreateGame = ({ setCurrentGameId }) => {
   const handleCreateGame = async (e) => {
     e.preventDefault();
     const gameId = await createGame(gameName, playerAmount, authContext.uid);
-    joinGame(authContext.uid, gameId, true);
+    joinGame(authContext.uid, gameId, true, authContext.email);
     setCurrentGameId(gameId);
     // Reset states
     setPlayerAmount(2);

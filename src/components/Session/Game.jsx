@@ -7,7 +7,7 @@ const Game = ({ name, id, owner, currentGameId, setCurrentGameId }) => {
   const { authContext } = useContext(AuthContext);
 
   const handleJoinGame = (gameId) => {
-    joinGame(authContext.uid, gameId, false);
+    joinGame(authContext.uid, gameId, false, authContext.email);
     setCurrentGameId(gameId);
   };
 

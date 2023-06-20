@@ -1,11 +1,11 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, test, beforeEach, vi } from "vitest";
-import LoginRegisterRoute from "./LoginRegisterRoute";
+import LoginRegisterRoute from "../routes/LoginRegisterRoute/LoginRegisterRoute"
 import { MemoryRouter } from "react-router-dom";
-import { login, register } from "../../firestoreFunctions";
+import { login, register } from "../firestoreFunctions";
 
 // Mock firestore create function
-vi.mock("../../firestoreFunctions", () => {
+vi.mock("../firestoreFunctions", () => {
   return { login: vi.fn(), register: vi.fn() };
 });
 
@@ -54,8 +54,8 @@ describe("Login component test", () => {
   });
 });
 
-describe("Login component test", () => {
-  // Render the Login for each case
+describe("Register component test", () => {
+  // Render the register for each case
   beforeEach(() => {
     render(
       <MemoryRouter>
