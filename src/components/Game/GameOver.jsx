@@ -1,5 +1,15 @@
-const GameOver = ({ winner }) => {
-    return <h1>{winner.playerId}: {winner.rank.type}</h1>
-}
+import { useNavigate } from "react-router-dom";
 
-export default GameOver
+const GameOver = ({ winner }) => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <h1>
+        {winner.email}: {winner.rank.type}
+      </h1>
+      <button onClick={() => navigate("/session")}>Home</button>
+    </>
+  );
+};
+
+export default GameOver;
