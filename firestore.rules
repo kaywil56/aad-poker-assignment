@@ -6,9 +6,11 @@ service cloud.firestore {
       allow update, delete: if request.auth.uid == resource.data.owner; // Allow document owner to modify
       
       match /players/{playerId} {
-        allow read, write: if request.auth != null; // Allow all players to read other players' documents
-       // allow create: if request.auth != null; // Allow authenticated user to create a player document
-       // allow update: if request.auth.uid == playerId; // Allow a player to write their own document
+        allow read: if request.auth != null  
+                   && exists(/databases/$(database)/documents/games/$(gameId)/players/$(request.auth.uid)); // Allow players to read other players' documents if they belong to the same collection
+        allow create: if request.auth != null && get(/databases/$(database)/documents/games/$(gameId)).data.started == false; // Allow authenticated user to create a player document (join a game)
+        allow update: if (request.auth.uid == playerId && resource.data.isTurn) || 
+        get(/databases/$(database)/documents/games/$(gameId)).data.owner == request.auth.uid; // Allow a player to write their own document and game owner to write to all player documents
       }
     }
   }

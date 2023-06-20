@@ -48,6 +48,7 @@ describe("Valid actions", () => {
     };
     const authenticatedUser = testEnv.authenticatedContext(userId);
     const gameDocRef = doc(authenticatedUser.firestore(), `games/${gameId}`);
+
     await assertSucceeds(setDoc(gameDocRef, mockGame));
   });
 
@@ -57,19 +58,6 @@ describe("Valid actions", () => {
     // Try to read the document as the authenticated user
     const q = query(collection(authenticatedUser.firestore(), "games"));
     await assertSucceeds(getDocs(q));
-  });
-
-  test("An authenticated user can start a game they created", async () => {
-    const userId = "userid1";
-    const gameId = "gameId1234";
-    const authenticatedUser = testEnv.authenticatedContext(userId);
-    const gameDocRef = doc(authenticatedUser.firestore(), `games/${gameId}`);
-    // Try to read the document as the authenticated user
-    await assertSucceeds(
-      updateDoc(gameDocRef, {
-        started: true,
-      })
-    );
   });
 
   test("An authenticated user can join a game", async () => {
@@ -83,7 +71,7 @@ describe("Valid actions", () => {
     await assertSucceeds(
       setDoc(gameDocRef, {
         playerId: userId,
-        isTurn: false,
+        isTurn: true,
         discardPile: [],
       })
     );
@@ -93,9 +81,20 @@ describe("Valid actions", () => {
     const userId = "userid1";
     const gameId = "gameId1234";
     const deck = createDeck();
-    console.log("works");
     const authenticatedUser = testEnv.authenticatedContext(userId);
     const firestore = authenticatedUser.firestore();
+
+    const gameDocRef = doc(
+      firestore,
+      `games/${gameId}/players/${userId}`
+    );
+
+    // Join Game so the owner can read other players docs
+    await setDoc(gameDocRef, {
+      playerId: userId,
+      isTurn: false,
+      discardPile: [],
+    });
 
     const batch = writeBatch(firestore);
 
@@ -112,7 +111,20 @@ describe("Valid actions", () => {
     await assertSucceeds(batch.commit());
   });
 
-  test("An authenticated user can update their own deck", async () => {
+  test("An authenticated user can start a game they created", async () => {
+    const userId = "userid1";
+    const gameId = "gameId1234";
+    const authenticatedUser = testEnv.authenticatedContext(userId);
+    const gameDocRef = doc(authenticatedUser.firestore(), `games/${gameId}`);
+    // Try to read the document as the authenticated user
+    await assertSucceeds(
+      updateDoc(gameDocRef, {
+        started: true,
+      })
+    );
+  });
+
+  test("An authenticated user can update their own deck if it is there turn", async () => {
     const userId = "userid2";
     const gameId = "gameId1234";
     const newCardsForSwap = [
@@ -197,6 +209,97 @@ describe("Invalid authenticated actions", async () => {
 
     await assertFails(deleteDoc(gameDocRef));
   });
+
+  test("A player can not read other player documents from a game they do not belong to", async () => {
+    const gameOwnerId = "goID1234";
+    const otherUserId = "otherUser1234";
+    const gameId = "gid1234";
+    const gameOwner = testEnv.authenticatedContext(gameOwnerId);
+    const otherUser = testEnv.authenticatedContext(otherUserId);
+
+    const mockGame = {
+      name: "My test poker game",
+      playerAmount: 2,
+      owner: gameOwnerId,
+      started: false,
+    };
+
+    const gameDocRef = doc(gameOwner.firestore(), `games/${gameId}`);
+    await setDoc(gameDocRef, mockGame);
+
+    await setDoc(gameDocRef, {
+      playerId: gameOwnerId,
+      isTurn: false,
+      discardPile: [],
+    });
+
+    const q = query(
+      collection(otherUser.firestore(), "games", gameId, "players")
+    );
+    await assertFails(getDocs(q));
+  });
+
+  test("user cant join a game that has already started", async () => {
+    const otherUserId = "otherUser1234";
+    const gameOwnerId = "gameOwner1234";
+
+    const gameId = "gameId1234";
+    const gameOwner = testEnv.authenticatedContext(gameOwnerId);
+    const otherUser = testEnv.authenticatedContext(otherUserId);
+
+    const gameDocRef = doc(gameOwner.firestore(), `games/${gameId}`);
+
+    await updateDoc(gameDocRef, {
+      started: true,
+    });
+
+    const gameDocRefWithOtherUser = doc(
+      otherUser.firestore(),
+      `games/${gameId}/players/${otherUserId}`
+    );
+
+    await assertFails(
+      setDoc(gameDocRefWithOtherUser, {
+        playerId: otherUserId,
+        isTurn: false,
+        discardPile: [],
+      })
+    );
+  });
+
+  test("A user can not update their hand if it is not their turn", async ()=> {
+        const userId = "userid1";
+    const gameId = "gameId1234";
+    const newCardsForSwap = [
+      {
+        suit: "Diamonds",
+        value: 7,
+      },
+      {
+        suit: "Diamonds",
+        value: 2,
+      },
+      {
+        suit: "Spades",
+        value: 4,
+      },
+      {
+        suit: "Clubs",
+        value: 3,
+      },
+    ];
+    const authenticatedUser = testEnv.authenticatedContext(userId);
+    const playerDocRef = doc(
+      authenticatedUser.firestore(),
+      `games/${gameId}/players/${userId}`
+    );
+    // Try to read the document as the authenticated user
+    await assertFails(
+      updateDoc(playerDocRef, {
+        hand: newCardsForSwap,
+      })
+    );
+  })
 });
 
 describe("unauthenticated actions", async () => {
