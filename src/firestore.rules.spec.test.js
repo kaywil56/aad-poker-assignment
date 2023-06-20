@@ -156,30 +156,53 @@ describe("Valid actions", () => {
   });
 });
 
-describe("Invalid authenticated actions", () => {});
-
-describe("unauthenticated actions", async () => {
-  test("An unauthenticated user can not read all games", async () => {
-    const authenticatedUserId = "authUser1234";
+describe("Invalid authenticated actions", async () => {
+  test("A non game owner can not start a game", async () => {
+    const gameOwnerId = "gameOwner1234";
+    const otherUserId = "otherUser1234";
     const gameId = "gameId1234";
-    const authenticatedUser = testEnv.authenticatedContext(authenticatedUserId);
-
     const mockGame = {
       name: "My test poker game",
       playerAmount: 2,
-      owner: authenticatedUserId,
+      owner: gameOwnerId,
       started: false,
     };
-    const createGameDocRef = doc(
-      authenticatedUser.firestore(),
+    const gameOwner = testEnv.authenticatedContext(gameOwnerId);
+    const otherUser = testEnv.authenticatedContext(otherUserId);
+
+    const gameDocRefWithGameOwner = doc(
+      gameOwner.firestore(),
+      `games/${gameId}`
+    );
+    const gameDocRefWithOtherUser = doc(
+      otherUser.firestore(),
       `games/${gameId}`
     );
 
-    // Create a game with a authenticated user
-    await setDoc(createGameDocRef, mockGame);
+    await setDoc(gameDocRefWithGameOwner, mockGame);
 
-    const userId = "userid3";
-    const unauthenticatedUser = testEnv.unauthenticatedContext(userId);
+    await assertFails(
+      updateDoc(gameDocRefWithOtherUser, {
+        started: true,
+      })
+    );
+  });
+
+  test("A non game owner can not delete someone elses game", async () => {
+    const otherUserId = "otherUser1234";
+    const gameId = "gameId1234";
+    const otherUser = testEnv.authenticatedContext(otherUserId);
+
+    const gameDocRef = doc(otherUser.firestore(), `games/${gameId}`);
+
+    await assertFails(deleteDoc(gameDocRef));
+  });
+});
+
+describe("unauthenticated actions", async () => {
+  test("An unauthenticated user can not read all games", async () => {
+    const otherUser = "userid3";
+    const unauthenticatedUser = testEnv.unauthenticatedContext(otherUser);
     // Try to read the document as the unauthenticated user
     const q = query(collection(unauthenticatedUser.firestore(), "games"));
     await assertFails(getDocs(q));
@@ -292,4 +315,3 @@ describe("unauthenticated actions", async () => {
     await assertFails(deleteDoc(gameDocRef));
   });
 });
-
