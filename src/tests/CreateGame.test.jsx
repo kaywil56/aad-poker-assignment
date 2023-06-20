@@ -18,7 +18,7 @@ describe("Create game component test", () => {
     expect(screen.getByText("Max Players")).to.exist;
   });
 
-  test("createGame is called with correct params", () => {
+  test("createGame is called", () => {
     vi.mock("../firestoreFunctions", () => {
       return { createGame: vi.fn(), joinGame: vi.fn() };
     });
