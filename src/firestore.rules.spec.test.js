@@ -32,9 +32,9 @@ const testEnv = await initializeTestEnvironment({
   },
 });
 
-// afterAll(async () => {
-//   testEnv.clearFirestore();
-// });
+afterAll(async () => {
+  testEnv.clearFirestore();
+});
 
 describe("Valid actions", () => {
   test("An authenticated user can create a game", async () => {
@@ -154,135 +154,142 @@ describe("Valid actions", () => {
 
     await assertSucceeds(deleteDoc(gameDocRef));
   });
-
-  //   test("An authenticated user can update a todo to their own collection", async () => {
-  //     const mockUpdateTodo = {
-  //       title: "Shopping",
-  //       description: "Buy milk, eggs, and bacon",
-  //     };
-  //     const todoId = "todoid1";
-  //     const userId = "userid1";
-  //     const authenticatedUser = testEnv.authenticatedContext(userId);
-  //     const todoDocRef = doc(
-  //       authenticatedUser.firestore(),
-  //       `users/${userId}/todos/${todoId}`
-  //     );
-
-  //     await assertSucceeds(setDoc(todoDocRef, mockUpdateTodo, { merge: true }));
-  //   });
-
-  //   test("An authenticated user can delete a todo to their own collection", async () => {
-  //     const todoId = "todoid1";
-  //     const userId = "userid1";
-  //     const authenticatedUser = testEnv.authenticatedContext(userId);
-  //     const todoDocRef = doc(
-  //       authenticatedUser.firestore(),
-  //       `users/${userId}/todos/${todoId}`
-  //     );
-
-  //     await assertSucceeds(deleteDoc(todoDocRef));
-  //   });
 });
 
-// describe("Invalid unauthenticated actions", () => {
-//   test("unauthenticated user cant read a users todo", async () => {
-//     const userId = "userid1";
-//     const todoId = "todoid1";
-//     const unauthenticatedUser = testEnv.unauthenticatedContext();
-//     const userRef = doc(
-//       unauthenticatedUser.firestore(),
-//       `users/${userId}/todos/${todoId}`
-//     );
-//     // Try to read the document as the authenticated user
-//     await assertFails(getDoc(userRef));
-//   });
+describe("Invalid authenticated actions", () => {});
 
-//   test("unauthenticated user cant create a todo in another users collection", async () => {
-//     const mockTodo = {
-//       title: "Shopping",
-//       description: "Buy milk",
-//     };
-//     const userId = "userid1";
-//     const unauthenticatedUser = testEnv.unauthenticatedContext();
-//     const userDocRef = doc(unauthenticatedUser.firestore(), `users/${userId}`);
-//     const todoColRef = collection(userDocRef, "todos");
+describe("unauthenticated actions", async () => {
+  test("An unauthenticated user can not read all games", async () => {
+    const authenticatedUserId = "authUser1234";
+    const gameId = "gameId1234";
+    const authenticatedUser = testEnv.authenticatedContext(authenticatedUserId);
 
-//     await assertFails(addDoc(todoColRef, mockTodo));
-//   });
+    const mockGame = {
+      name: "My test poker game",
+      playerAmount: 2,
+      owner: authenticatedUserId,
+      started: false,
+    };
+    const createGameDocRef = doc(
+      authenticatedUser.firestore(),
+      `games/${gameId}`
+    );
 
-//   test("unnauthenticated user can not update a todo to another users collection", async () => {
-//     const mockUpdateTodo = {
-//       title: "Shopping",
-//       description: "Buy milk, eggs, and bacon",
-//     };
-//     const todoId = "todoid1";
-//     const userId = "userid1";
-//     const unauthenticatedUser = testEnv.unauthenticatedContext();
-//     const todoDocRef = doc(
-//       unauthenticatedUser.firestore(),
-//       `users/${userId}/todos/${todoId}`
-//     );
+    // Create a game with a authenticated user
+    await setDoc(createGameDocRef, mockGame);
 
-//     await assertFails(setDoc(todoDocRef, mockUpdateTodo, { merge: true }));
-//   });
+    const userId = "userid3";
+    const unauthenticatedUser = testEnv.unauthenticatedContext(userId);
+    // Try to read the document as the unauthenticated user
+    const q = query(collection(unauthenticatedUser.firestore(), "games"));
+    await assertFails(getDocs(q));
+  });
 
-//   test("An unauthenticated user can not delete a todo to their own collection", async () => {
-//     const todoId = "todoid1";
-//     const userId = "userid1";
-//     const unauthenticatedUser = testEnv.unauthenticatedContext();
-//     const todoDocRef = doc(
-//       unauthenticatedUser.firestore(),
-//       `users/${userId}/todos/${todoId}`
-//     );
+  test("An unauthenticated user can not create a game", async () => {
+    const userId = "userid3";
+    const gameId = "gameId2468";
+    const mockGame = {
+      name: "Unauthenticated Poker Game",
+      playerAmount: 2,
+      owner: userId,
+      started: false,
+    };
+    const unauthenticatedUser = testEnv.unauthenticatedContext(userId);
+    const gameDocRef = doc(unauthenticatedUser.firestore(), `games/${gameId}`);
+    await assertFails(setDoc(gameDocRef, mockGame));
+  });
 
-//     await assertFails(deleteDoc(todoDocRef));
-//   });
-// });
+  test("An unauthenticated user can not start a game", async () => {
+    const userId = "userid1";
+    const gameId = "gameId1234";
+    const unauthenticatedUser = testEnv.unauthenticatedContext(userId);
+    const gameDocRef = doc(unauthenticatedUser.firestore(), `games/${gameId}`);
 
-// describe("Invalid authenticated actions", () => {
-//   test("authenticated user cant read another users todo", async () => {
-//     const unauthenticatedUser = testEnv.authenticatedContext("userid2");
-//     const userRef = doc(
-//       unauthenticatedUser.firestore(),
-//       "users/userid1/todos/todoid1"
-//     );
-//     // Try to read the document as the authenticated user
-//     await assertFails(getDoc(userRef));
-//   });
+    await assertFails(
+      updateDoc(gameDocRef, {
+        started: true,
+      })
+    );
+  });
 
-//   test("authenticated user cant create a todo in another users collection", async () => {
-//     const mockTodo = {
-//       title: "Shopping",
-//       description: "Buy milk",
-//     };
-//     const unauthenticatedUser = testEnv.authenticatedContext("userid2");
-//     const userDocRef = doc(unauthenticatedUser.firestore(), "users/todo1");
-//     const todoColRef = collection(userDocRef, "todos");
+  test("An unauthenticated user can not join a game", async () => {
+    const unauthenticatedUserId = "unauthUser1234";
+    const gameId = "gameId1234";
+    const unauthenticatedUser = testEnv.unauthenticatedContext(
+      unauthenticatedUserId
+    );
 
-//     await assertFails(addDoc(todoColRef, mockTodo));
-//   });
+    const gameDocRef = doc(
+      unauthenticatedUser.firestore(),
+      `games/${gameId}/players/${unauthenticatedUserId}`
+    );
 
-//   test("authenticated user can not update a todo to another users collection", async () => {
-//     const mockUpdateTodo = {
-//       title: "Shopping",
-//       description: "Buy milk, eggs, and bacon",
-//     };
-//     const unauthenticatedUser = testEnv.authenticatedContext("userid2");
-//     const todoDocRef = doc(
-//       unauthenticatedUser.firestore(),
-//       "users/userid1/todos/todoid1"
-//     );
+    // Attempt to join a game as a unauthenticated user
+    await assertFails(
+      setDoc(gameDocRef, {
+        playerId: unauthenticatedUserId,
+        isTurn: false,
+        discardPile: [],
+      })
+    );
+  });
 
-//     await assertFails(setDoc(todoDocRef, mockUpdateTodo, { merge: true }));
-//   });
+  test("An unauthenticated user can not update someone elses deck", async () => {
+    const authenticatedUserId = "userid2";
+    const unauthenticatedUserId = "userid3";
+    const gameId = "gameId1234";
+    const authenticatedUser = testEnv.authenticatedContext(authenticatedUserId);
+    const gameDocRef = doc(
+      authenticatedUser.firestore(),
+      `games/${gameId}/players/${authenticatedUserId}`
+    );
+    // Join a game with autheneticated user
+    await setDoc(gameDocRef, {
+      playerId: authenticatedUserId,
+      isTurn: false,
+      discardPile: [],
+    });
 
-//   test("authenticated user can not delete a todo to their own collection", async () => {
-//     const unauthenticatedUser = testEnv.authenticatedContext("userid2");
-//     const todoDocRef = doc(
-//       unauthenticatedUser.firestore(),
-//       "users/userid1/todos/todoid1"
-//     );
+    const newCardsForSwap = [
+      {
+        suit: "Diamonds",
+        value: 7,
+      },
+      {
+        suit: "Diamonds",
+        value: 2,
+      },
+      {
+        suit: "Spades",
+        value: 4,
+      },
+      {
+        suit: "Clubs",
+        value: 3,
+      },
+    ];
+    const unauthenticatedUser = testEnv.unauthenticatedContext(
+      unauthenticatedUserId
+    );
+    const playerDocRef = doc(
+      unauthenticatedUser.firestore(),
+      `games/${gameId}/players/${authenticatedUserId}`
+    );
+    // Try to update another players hand
+    await assertFails(
+      updateDoc(playerDocRef, {
+        hand: newCardsForSwap,
+      })
+    );
+  });
 
-//     await assertFails(deleteDoc(todoDocRef));
-//   });
-// });
+  test("An unauthenticated user can not delete a game", async () => {
+    const gameId = "gameId1234";
+    const userId = "userid1";
+    const unauthenticatedUser = testEnv.unauthenticatedContext(userId);
+    const gameDocRef = doc(unauthenticatedUser.firestore(), `games/${gameId}`);
+
+    await assertFails(deleteDoc(gameDocRef));
+  });
+});
+
