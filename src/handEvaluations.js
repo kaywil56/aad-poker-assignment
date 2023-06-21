@@ -82,6 +82,42 @@ export const twoPair = (hand) => {
   return false;
 };
 
+// export const straight = (hand) => {
+//   // Use a set to extract unique values only
+//   let uniqueValues = new Set(hand.map((card) => card.value));
+
+//   // Impossible to have a straight with less than 5 unique values
+//   if (uniqueValues.size < 5) {
+//     return false;
+//   }
+
+//   // Convert to array
+//   uniqueValues = [...uniqueValues];
+
+//   const lowAceStraightValues = [14, 2, 3, 4, 5];
+
+//   const hasLowAceStraight = lowAceStraightValues.every((value) => {
+//     return uniqueValues.includes(value);
+//   });
+
+//   if (hasLowAceStraight) {
+//     return 5;
+//   }
+
+//   uniqueValues.sort((a, b) => {
+//     return b - a;
+//   });
+
+//   // Iterate over unique values, checking if the current value
+//   // is is equal to the previous value when you add 1
+//   for (let i = 1; i < uniqueValues.length; i++) {
+//     if (uniqueValues[i] !== uniqueValues[i - 1] + 1) {
+//       return false;
+//     }
+//   }
+//   return uniqueValues[0];
+// };
+
 export const straight = (hand) => {
   // Use a set to extract unique values only
   let uniqueValues = new Set(hand.map((card) => card.value));
@@ -96,6 +132,7 @@ export const straight = (hand) => {
 
   const lowAceStraightValues = [14, 2, 3, 4, 5];
 
+  // Check if the hand has the lowest straight with Ace as the lowest card
   const hasLowAceStraight = lowAceStraightValues.every((value) => {
     return uniqueValues.includes(value);
   });
@@ -104,19 +141,20 @@ export const straight = (hand) => {
     return 5;
   }
 
-  uniqueValues.sort((a, b) => {
-    return b - a;
-  });
+  // Sort the unique values in ascending order
+  uniqueValues.sort((a, b) => a - b);
 
   // Iterate over unique values, checking if the current value
-  // is is equal to the previous value when you add 1
+  // is equal to the previous value plus 1
   for (let i = 1; i < uniqueValues.length; i++) {
     if (uniqueValues[i] !== uniqueValues[i - 1] + 1) {
       return false;
     }
   }
-  return uniqueValues[0];
+
+  return uniqueValues[uniqueValues.length - 1];
 };
+
 
 export const flush = (hand) => {
   const suits = new Set(hand.map((card) => card.suit));
@@ -138,7 +176,7 @@ export const straightFlush = (hand) => {
 };
 
 export const royalFlush = (hand) => {
-  const requiredValues = ["10", "J", "K", "Q", "A"];
+  const requiredValues = [10, 11, 12, 13, 14];
 
   let meetsRequiredValues = true;
 
