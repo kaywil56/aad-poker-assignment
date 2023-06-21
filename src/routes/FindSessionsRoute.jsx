@@ -5,7 +5,7 @@ import { getGames } from "../firestoreFunctions";
 import CreateGame from "../components/Session/CreateGame";
 import GameList from "../components/Session/GameList";
 
-const SessionRoute = () => {
+const FindSessionsRoute = () => {
   const { authContext } = useContext(AuthContext);
   const [currentGameId, setCurrentGameId] = useState(0);
 
@@ -50,4 +50,4 @@ const SessionRoute = () => {
   );
 };
 
-export default SessionRoute;
+export default FindSessionsRoute;

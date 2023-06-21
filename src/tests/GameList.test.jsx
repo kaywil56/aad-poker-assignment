@@ -4,10 +4,6 @@ import AuthContext from "../AuthContext";
 import GameList from "../components/Session/GameList";
 
 describe("GameList component test", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   beforeEach(() => {
     const mockGames = [
       {

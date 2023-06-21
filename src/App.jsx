@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import LoginRegisterRoute from "./routes/LoginRegisterRoute/LoginRegisterRoute";
-import SessionRoute from "./routes/SessionRoute";
+import FindSessionsRoute from "./routes/FindSessionsRoute";
 import GameRoute from "./routes/GameRoute/GameRoute";
 import AuthContext from "./AuthContext";
 import UserDetailsLayout from "./routes/UserDetailsLayout";
@@ -81,7 +81,7 @@ const App = () => {
           }
         />
         <Route path="/session" element={<UserDetailsLayout />}>
-          <Route index element={<SessionRoute />} />
+          <Route index element={<FindSessionsRoute />} />
           <Route path="/session/game" element={<GameRoute />} />
         </Route>
       </Routes>
