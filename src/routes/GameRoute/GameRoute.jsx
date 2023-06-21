@@ -16,7 +16,7 @@ import {
   straightFlush,
   royalFlush,
   calculateHandStrength,
-  createDeck
+  createDeck,
 } from "../../handEvaluations";
 import Players from "../../components/Game/Players";
 import { Navigate, useLocation } from "react-router-dom";
@@ -85,29 +85,14 @@ const GameRoute = () => {
     handleSetNextPlayerTurn();
   };
 
-  // const handleSetNextPlayerTurn = () => {
-  //   const currentPlayerIdx = players.findIndex(
-  //     (player) => player.id === authContext.uid
-  //   );
-
-  //   const nextPlayerIdx = currentPlayerIdx + 1;
-  //   // If the current player is the last player
-  //   if (nextPlayerIdx === players.length) {
-  //     return;
-  //   }
-  //   const nextPlayer = players[nextPlayerIdx];
-
-  //   setNextPlayerTurn(location.state.gameId, authContext.uid, nextPlayer.id);
-  // };
-
   const handleSetNextPlayerTurn = () => {
     const currentPlayerIdx = players.findIndex(
       (player) => player.id === authContext.uid
     );
-  
+
     const nextPlayerIdx = (currentPlayerIdx + 1) % players.length;
     const nextPlayer = players[nextPlayerIdx];
-  
+
     setNextPlayerTurn(location.state.gameId, authContext.uid, nextPlayer.id);
   };
 
@@ -169,13 +154,10 @@ const GameRoute = () => {
 
   useEffect(() => {
     const playerCount = location.state.playerAmount;
-    console.log("Player count", playerCount)
-    console.log("Player length", players.length)
     if (players.length == playerCount) {
       const allPlayersHavePlayed = players.every(
         (player) => player?.rank !== undefined
       );
-      console.log("All players have played", allPlayersHavePlayed)
       if (allPlayersHavePlayed) {
         setWinner(evaluateWinner());
       }
@@ -208,12 +190,9 @@ const GameRoute = () => {
       const newCards = getNewCards(selectedCards.length);
       const updatedHand = [...handWithCardsRemoved, ...newCards];
 
-      await Promise.all([
-        updateHand(location.state.gameId, authContext.uid, updatedHand),
-        discardCards(location.state.gameId, authContext.uid, selectedCards),
-      ]);
-
-      setAlreadySwapped(true);
+      await updateHand(location.state.gameId, authContext.uid, updatedHand);
+      await discardCards(location.state.gameId, authContext.uid, selectedCards),
+        setAlreadySwapped(true);
     }
   };
 
@@ -243,7 +222,7 @@ const GameRoute = () => {
   };
 
   const updateSelectedCards = (card) => {
-    if (!alreadySwapped) {
+    if (!alreadySwapped && isPlayerTurn()) {
       let isSelected = checkIfSelected(card);
       if (isSelected) {
         const currentSelectedCards = selectedCards.filter(
@@ -257,11 +236,13 @@ const GameRoute = () => {
   };
 
   const checkIfSelected = (card) => {
-    const isSelected = selectedCards.some(
-      (selectedCard) =>
-        selectedCard.value === card.value && selectedCard.suit === card.suit
-    );
-    return isSelected;
+    if (isPlayerTurn()) {
+      const isSelected = selectedCards.some(
+        (selectedCard) =>
+          selectedCard.value === card.value && selectedCard.suit === card.suit
+      );
+      return isSelected;
+    }
   };
 
   return (

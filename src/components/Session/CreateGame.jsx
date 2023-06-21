@@ -5,16 +5,16 @@ import './CreateGame.css'
 
 const CreateGame = ({ setCurrentGameId }) => {
   const [gameName, setGameName] = useState("");
-  const [playerAmount, setPlayerAmount] = useState(2);
+  const [maxPlayers, setMaxPlayers] = useState(2);
   const { authContext } = useContext(AuthContext);
 
   const handleCreateGame = async (e) => {
     e.preventDefault();
-    const gameId = await createGame(gameName, playerAmount, authContext.uid);
+    const gameId = await createGame(gameName, maxPlayers, authContext.uid);
     joinGame(authContext.uid, gameId, true, authContext.email);
     setCurrentGameId(gameId);
     // Reset states
-    setPlayerAmount(2);
+    setMaxPlayers(2);
     setGameName("");
   };
 
@@ -39,11 +39,11 @@ const CreateGame = ({ setCurrentGameId }) => {
       <div className="create-game-form-group">
         <label className="create-game-form-label">Max Players</label>
         <input
-          onChange={(e) => setPlayerAmount(e.target.value)}
+          onChange={(e) => setMaxPlayers(e.target.value)}
           type="number"
           min={2}
           max={5}
-          value={playerAmount}
+          value={maxPlayers}
           className="create-game-form-input"
           required
         />

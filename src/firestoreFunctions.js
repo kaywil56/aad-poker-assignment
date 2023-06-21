@@ -8,6 +8,7 @@ import {
   updateDoc,
   writeBatch,
   getDocs,
+  arrayUnion
 } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
@@ -20,8 +21,9 @@ export const createGame = async (gameName, playerAmount, ownerId) => {
   const newGameDocRef = await addDoc(gameCollectionRef, {
     owner: ownerId,
     name: gameName,
-    playerAmount: playerAmount,
+    maxPlayers: playerAmount,
     started: false,
+    joinedPlayers: [],
   });
 
   return newGameDocRef.id;
@@ -34,22 +36,30 @@ export const getGames = async (setGames) => {
 
   const unsubscribe = onSnapshot(gamesQuery, async (querySnapshot) => {
     const games = [];
-    querySnapshot.forEach((doc) => {
+    querySnapshot.forEach(async (doc) => {
       games.push({
         id: doc.id,
         name: doc.data().name,
         started: doc.data().started,
-        playerAmount: doc.data().playerAmount,
+        maxPlayers: doc.data().maxPlayers,
         owner: doc.data().owner,
+        joinedPlayers: doc.data().joinedPlayers,
       });
     });
     setGames(games);
+    console.log(games);
   });
+
   return () => unsubscribe();
 };
 
 export const joinGame = async (userId, gameId, isTurn, email) => {
   const playersDocRef = doc(firestore, "games", gameId, "players", userId);
+  const gameDocRef = doc(firestore, "games", gameId);
+
+  await updateDoc(gameDocRef, {
+    joinedPlayers: arrayUnion(userId),
+  });
 
   await setDoc(playersDocRef, {
     playerId: userId,
@@ -94,18 +104,10 @@ export const getPlayers = async (gameId, setPlayers, setHand, uid) => {
       });
     });
 
-    // players.reverse();
-    // movePlayerToTheFront(players)
     setPlayers(players);
   });
 
   return () => unsubscribe();
-};
-
-const movePlayerToTheFront = (players) => {
-  let currentIndex = players.findIndex((player) => player.isTurn == true);
-  const currentPlayer = players.splice(currentIndex, 1)[0];
-  players.unshift(currentPlayer);
 };
 
 export const updateHand = async (gameId, playerId, hand) => {

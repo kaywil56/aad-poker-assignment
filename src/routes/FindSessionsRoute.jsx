@@ -30,7 +30,7 @@ const FindSessionsRoute = () => {
         state={{
           gameId: currentGameId,
           owner: currentGame?.owner,
-          playerAmount: currentGame?.playerAmount,
+          playerAmount: currentGame?.joinedPlayers?.length,
         }}
       />
     );

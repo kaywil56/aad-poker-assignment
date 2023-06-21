@@ -11,9 +11,7 @@ const GameList = ({ games, setCurrentGameId, currentGameId }) => {
             return (
               <Game
                 key={`game-${idx}`}
-                name={game.name}
-                id={game.id}
-                owner={game.owner}
+                game={game}
                 currentGameId={currentGameId}
                 setCurrentGameId={setCurrentGameId}
               />
