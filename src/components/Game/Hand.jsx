@@ -40,6 +40,7 @@ const Hand = ({ cards, updateSelectedCards, checkIfSelected }) => {
             opacity: checkIfSelected(card) ? ".7" : "1",
           }}
           key={`card-${idx}`}
+          aria-label="select"
         >
           <div
             className="card-values"
