@@ -85,18 +85,29 @@ const GameRoute = () => {
     handleSetNextPlayerTurn();
   };
 
+  // const handleSetNextPlayerTurn = () => {
+  //   const currentPlayerIdx = players.findIndex(
+  //     (player) => player.id === authContext.uid
+  //   );
+
+  //   const nextPlayerIdx = currentPlayerIdx + 1;
+  //   // If the current player is the last player
+  //   if (nextPlayerIdx === players.length) {
+  //     return;
+  //   }
+  //   const nextPlayer = players[nextPlayerIdx];
+
+  //   setNextPlayerTurn(location.state.gameId, authContext.uid, nextPlayer.id);
+  // };
+
   const handleSetNextPlayerTurn = () => {
     const currentPlayerIdx = players.findIndex(
       (player) => player.id === authContext.uid
     );
-
-    const nextPlayerIdx = currentPlayerIdx + 1;
-    // If the current player is the last player
-    if (nextPlayerIdx === players.length) {
-      return;
-    }
+  
+    const nextPlayerIdx = (currentPlayerIdx + 1) % players.length;
     const nextPlayer = players[nextPlayerIdx];
-
+  
     setNextPlayerTurn(location.state.gameId, authContext.uid, nextPlayer.id);
   };
 
@@ -132,10 +143,10 @@ const GameRoute = () => {
   };
 
   useEffect(() => {
+    if (authContext.uid === location.state.owner) {
+      dealPlayersInitialCards([...deck], location.state.gameId);
+    }
     const get = async () => {
-      if (authContext.uid === location.state.owner) {
-        await dealPlayersInitialCards([...deck], location.state.gameId);
-      }
       await getPlayers(
         location.state.gameId,
         setPlayers,
@@ -158,10 +169,13 @@ const GameRoute = () => {
 
   useEffect(() => {
     const playerCount = location.state.playerAmount;
-    if (players.length === playerCount) {
+    console.log("Player count", playerCount)
+    console.log("Player length", players.length)
+    if (players.length == playerCount) {
       const allPlayersHavePlayed = players.every(
         (player) => player?.rank !== undefined
       );
+      console.log("All players have played", allPlayersHavePlayed)
       if (allPlayersHavePlayed) {
         setWinner(evaluateWinner());
       }

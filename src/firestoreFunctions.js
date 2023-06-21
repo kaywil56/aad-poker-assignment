@@ -55,7 +55,7 @@ export const joinGame = async (userId, gameId, isTurn, email) => {
     playerId: userId,
     isTurn: isTurn,
     discardPile: [],
-    email: email
+    email: email,
   });
 };
 
@@ -93,11 +93,19 @@ export const getPlayers = async (gameId, setPlayers, setHand, uid) => {
         discardPile: doc.data().discardPile,
       });
     });
-    players.reverse();
+
+    // players.reverse();
+    // movePlayerToTheFront(players)
     setPlayers(players);
   });
 
   return () => unsubscribe();
+};
+
+const movePlayerToTheFront = (players) => {
+  let currentIndex = players.findIndex((player) => player.isTurn == true);
+  const currentPlayer = players.splice(currentIndex, 1)[0];
+  players.unshift(currentPlayer);
 };
 
 export const updateHand = async (gameId, playerId, hand) => {
