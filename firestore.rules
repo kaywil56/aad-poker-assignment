@@ -3,15 +3,14 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /games/{gameId} {
       allow read, create: if request.auth != null;
-      allow update, delete: if request.auth.uid == resource.data.owner; // Allow document owner to modify
+      allow delete: if request.auth != null && request.auth.uid == resource.data.owner; // Allow document owner to delete
+     	allow update: if request.auth != null && (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['joinedPlayers']) || request.auth.uid == resource.data.owner);
       
       match /players/{playerId} {
-        allow read: if request.auth != null  
-                   && exists(/databases/$(database)/documents/games/$(gameId)/players/$(request.auth.uid)); // Allow players to read other players' documents if they belong to the same collection
-        allow create: if request.auth != null && get(/databases/$(database)/documents/games/$(gameId)).data.started == false; // Allow authenticated user to create a player document (join a game)
-        allow update: if (request.auth.uid == playerId && resource.data.isTurn) || 
-        get(/databases/$(database)/documents/games/$(gameId)).data.owner == request.auth.uid; // Allow a player to write their own document and game owner to write to all player documents
-      }
+        allow read, update: if request.auth != null && exists(/databases/$(database)/documents/games/$(gameId)/players/$(request.auth.uid)); // Allow players to read other players' documents if they belong to the same collection
+        allow create: if request.auth != null && get(/databases/$(database)/documents/games/$(gameId)).data.started == false; // Allow authenticated user to create a player document i.e. join a game
+        allow delete: if request.auth != null && request.auth.uid == playerId       
+    }
     }
   }
 }

@@ -31,7 +31,7 @@ const GameRoute = () => {
   const [hand, setHand] = useState([]);
   const [handRank, setHandRank] = useState("");
   const [players, setPlayers] = useState([]);
-  const [winner, setWinner] = useState({});
+  const [winner, setWinner] = useState([]);
   const [alreadySwapped, setAlreadySwapped] = useState(false);
   const [selectedCards, setSelectedCards] = useState([]);
 
@@ -160,6 +160,7 @@ const GameRoute = () => {
       );
       if (allPlayersHavePlayed) {
         setWinner(evaluateWinner());
+        console.log(winner)
       }
     }
   }, [players]);
@@ -245,7 +246,7 @@ const GameRoute = () => {
 
   return (
     <>
-      {!winner.playerId ? (
+      {winner.length == 0 ? (
         <div className="poker-table">
           <Players players={players} currentPlayerId={authContext.uid} />
           <div className="hand-container">
