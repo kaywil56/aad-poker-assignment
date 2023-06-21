@@ -94,6 +94,16 @@ export const straight = (hand) => {
   // Convert to array
   uniqueValues = [...uniqueValues];
 
+  const lowAceStraightValues = [14, 2, 3, 4, 5];
+
+  const hasLowAceStraight = lowAceStraightValues.every((value) => {
+    return uniqueValues.includes(value);
+  });
+
+  if (hasLowAceStraight) {
+    return 5;
+  }
+
   uniqueValues.sort((a, b) => {
     return b - a;
   });
@@ -128,8 +138,6 @@ export const straightFlush = (hand) => {
 };
 
 export const royalFlush = (hand) => {
-  console.log("RF");
-  console.log(hand);
   const requiredValues = ["10", "J", "K", "Q", "A"];
 
   let meetsRequiredValues = true;

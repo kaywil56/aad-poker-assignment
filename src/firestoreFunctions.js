@@ -8,7 +8,9 @@ import {
   updateDoc,
   writeBatch,
   getDocs,
-  arrayUnion
+  arrayUnion,
+  arrayRemove,
+  deleteDoc
 } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
@@ -67,6 +69,17 @@ export const joinGame = async (userId, gameId, isTurn, email) => {
     discardPile: [],
     email: email,
   });
+};
+
+export const leaveGame = async (userId, gameId) => {
+  const playersDocRef = doc(firestore, "games", gameId, "players", userId);
+  const gameDocRef = doc(firestore, "games", gameId);
+
+  await updateDoc(gameDocRef, {
+    joinedPlayers: arrayRemove(userId),
+  });
+
+  await deleteDoc(playersDocRef);
 };
 
 export const startGame = async (gameId) => {

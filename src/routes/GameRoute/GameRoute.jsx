@@ -185,14 +185,12 @@ const GameRoute = () => {
         );
       });
 
-      console.log(handWithCardsRemoved);
-
       const newCards = getNewCards(selectedCards.length);
       const updatedHand = [...handWithCardsRemoved, ...newCards];
 
       await updateHand(location.state.gameId, authContext.uid, updatedHand);
-      await discardCards(location.state.gameId, authContext.uid, selectedCards),
-        setAlreadySwapped(true);
+      await discardCards(location.state.gameId, authContext.uid, selectedCards)
+      setAlreadySwapped(true);
     }
   };
 

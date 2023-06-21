@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import AuthContext from "../../AuthContext";
-import { joinGame, startGame } from "../../firestoreFunctions";
+import { joinGame, leaveGame, startGame } from "../../firestoreFunctions";
 import "./Game.css";
 
 const Game = ({ currentGameId, setCurrentGameId, game }) => {
@@ -14,6 +14,11 @@ const Game = ({ currentGameId, setCurrentGameId, game }) => {
     } else {
       setError("Lobby Full.");
     }
+  };
+
+  const handleLeaveGame = async (gameId) => {
+    leaveGame(authContext.uid, gameId);
+    setCurrentGameId(0);
   };
 
   const handleStartGame = (gameId) => {
@@ -33,12 +38,19 @@ const Game = ({ currentGameId, setCurrentGameId, game }) => {
         <b>Players in lobby: </b> {game?.joinedPlayers?.length}/
         {game.maxPlayers}
       </p>
-      {game.id !== currentGameId && (
+      {game.id !== currentGameId ? (
         <button className="join-button" onClick={() => handleJoinGame(game.id)}>
           Join
         </button>
+      ) : (
+        <button
+          className="leave-button"
+          onClick={() => handleLeaveGame(game.id)}
+        >
+          Leave
+        </button>
       )}
-      {game.owner === authContext.uid && (
+      {game.owner === authContext.uid && game.id == currentGameId && (
         <button
           className="start-button"
           onClick={() => handleStartGame(game.id)}
