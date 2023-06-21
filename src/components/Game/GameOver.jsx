@@ -1,14 +1,21 @@
 import { useNavigate } from "react-router-dom";
 
-const GameOver = ({ winner }) => {
+const GameOver = ({ winners }) => {
   const navigate = useNavigate();
   return (
-    <>
-      <h1>
-        {winner.email}: {winner.rank.type}
-      </h1>
+    <div>
+      <h1>{winners.length > 1 ? "Draw" : "Winner"}</h1>
+      <ul>
+        {winners.map((winner, idx) => {
+          return (
+            <li key={`winner-idx-${idx}`}>
+              {winner.email}: {winner.rank.type}
+            </li>
+          );
+        })}
+      </ul>
       <button onClick={() => navigate("/session")}>Home</button>
-    </>
+    </div>
   );
 };
 

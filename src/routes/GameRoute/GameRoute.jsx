@@ -108,12 +108,12 @@ const GameRoute = () => {
     );
 
     if (highestHands.length === 1) {
-      return highestHands[0];
+      return [highestHands[0]];
     }
 
     const rankType = highestHands[0].rank.type;
     const isSame = highestHands.every(
-      (hand) => hand.rank.tieBreaker === highestHands[0].rank.tieBreaker
+      (hand) => hand.rank.tieBreaker == highestHands[0].rank.tieBreaker
     );
 
     if (rankType === "Royal Flush" || isSame) {
@@ -123,7 +123,7 @@ const GameRoute = () => {
         b.rank.tieBreaker - a.rank.tieBreaker;
       });
 
-      return highestHands[0];
+      return [highestHands[0]];
     }
   };
 
@@ -266,7 +266,7 @@ const GameRoute = () => {
           </div>
         </div>
       ) : (
-        <GameOver winner={winner} />
+        <GameOver winners={winner} />
       )}
     </>
   );
