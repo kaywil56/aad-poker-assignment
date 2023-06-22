@@ -18,6 +18,7 @@ import {
 } from "firebase/auth";
 import firestore from "../firestore";
 
+// Create a game doc within the games collection
 export const createGame = async (gameName, playerAmount, ownerId) => {
   const gameCollectionRef = collection(firestore, "games");
   const newGameDocRef = await addDoc(gameCollectionRef, {
@@ -31,6 +32,7 @@ export const createGame = async (gameName, playerAmount, ownerId) => {
   return newGameDocRef.id;
 };
 
+// Snapshot listener that gets games when a change is made in the game collection
 export const getGames = async (setGames) => {
   const gameCollectionRef = collection(firestore, "games");
 
@@ -49,16 +51,17 @@ export const getGames = async (setGames) => {
       });
     });
     setGames(games);
-    console.log(games);
   });
 
   return () => unsubscribe();
 };
 
+// Create a player doc for the current user
 export const joinGame = async (userId, gameId, isTurn, email) => {
   const playersDocRef = doc(firestore, "games", gameId, "players", userId);
   const gameDocRef = doc(firestore, "games", gameId);
 
+  // Add user id to games collection to make it easier to see how man players have joined a game
   await updateDoc(gameDocRef, {
     joinedPlayers: arrayUnion(userId),
   });
@@ -71,6 +74,7 @@ export const joinGame = async (userId, gameId, isTurn, email) => {
   });
 };
 
+// Remove player doc and player id from the game docs joinedPlayer list
 export const leaveGame = async (userId, gameId) => {
   const playersDocRef = doc(firestore, "games", gameId, "players", userId);
   const gameDocRef = doc(firestore, "games", gameId);
@@ -82,6 +86,7 @@ export const leaveGame = async (userId, gameId) => {
   await deleteDoc(playersDocRef);
 };
 
+// Update the games started field
 export const startGame = async (gameId) => {
   const gameDocRef = doc(firestore, "games", gameId);
 
@@ -90,6 +95,7 @@ export const startGame = async (gameId) => {
   });
 };
 
+// Snapshot listener that gets players when a change is made in the players collection
 export const getPlayers = async (gameId, setPlayers, setHand, uid) => {
   const playersCollectionRef = collection(
     firestore,
@@ -123,6 +129,7 @@ export const getPlayers = async (gameId, setPlayers, setHand, uid) => {
   return () => unsubscribe();
 };
 
+// Post a hand of cards to the current players document
 export const updateHand = async (gameId, playerId, hand) => {
   const playerDocRef = doc(firestore, "games", gameId, "players", playerId);
 
@@ -131,6 +138,7 @@ export const updateHand = async (gameId, playerId, hand) => {
   });
 };
 
+// Post hand rank to players collection e.g. "High card"
 export const updateHandRank = async (gameId, playerId, handRank) => {
   const playerDocRef = doc(firestore, "games", gameId, "players", playerId);
 
@@ -139,6 +147,7 @@ export const updateHandRank = async (gameId, playerId, handRank) => {
   });
 };
 
+// Post discarded cards to the players discard pile
 export const discardCards = async (gameId, playerId, discardedCards) => {
   const playerDocRef = doc(firestore, "games", gameId, "players", playerId);
 
@@ -147,6 +156,7 @@ export const discardCards = async (gameId, playerId, discardedCards) => {
   });
 };
 
+// Update the next players isTurn field within their doc
 export const setNextPlayerTurn = async (gameId, playerId, nextPlayerId) => {
   const currentPlayerDocRef = doc(
     firestore,
@@ -172,6 +182,9 @@ export const setNextPlayerTurn = async (gameId, playerId, nextPlayerId) => {
   });
 };
 
+// Allows the game owner to deal all players in a game a random hand
+// This prevents players from getting the same cards and trying to post them
+// At the same time as other players
 export const dealPlayersInitialCards = async (deck, gameId) => {
   const batch = writeBatch(firestore);
 
@@ -188,7 +201,8 @@ export const dealPlayersInitialCards = async (deck, gameId) => {
   await batch.commit();
 };
 
-function shuffleDeck(deck) {
+// Takes in a deck and returns a shuffled version of the deck
+const shuffleDeck = (deck) => {
   const shuffledDeck = [...deck];
   for (let i = shuffledDeck.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -197,10 +211,12 @@ function shuffleDeck(deck) {
   return shuffledDeck;
 }
 
+// Posts login creds to firebase
 export const login = async (auth, email, password) => {
   await signInWithEmailAndPassword(auth, email, password);
 };
 
+// Posts register creds to firebase
 export const register = async (auth, email, password) => {
   await createUserWithEmailAndPassword(auth, email, password);
 };

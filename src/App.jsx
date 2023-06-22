@@ -15,6 +15,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -31,6 +32,7 @@ const App = () => {
     };
   }, []);
 
+  // Render loader if loading state is true
   if (isLoading) {
     const style = {
       height: "100%",
@@ -53,6 +55,7 @@ const App = () => {
     );
   }
 
+  // Routes for game
   return (
     <AuthContext.Provider value={{ authContext, setAuthContext }}>
       <Routes>

@@ -1,3 +1,15 @@
+/*
+handEvaluations.js
+
+All hand evaluation functions
+
+All poker hand functions take in a card and return
+a tie breaker value if the hand matches in case of a situation where 
+players have the same hand.
+*/
+
+
+// Track the amount of times a value appears in a deck 
 export const fullHouse = (hand) => {
   const valueCounts = {};
   
@@ -50,6 +62,7 @@ export const multiples = (hand, count) => {
           return b.value - a.value;
         });
         // Shift the pair to the front of the array
+        // The pairs need to be at the front for the hand strength calculation
         currentHand.sort((a, b) => {
           if (a.value === multipleCardValue && b !== multipleCardValue) {
             return -1;
@@ -142,11 +155,13 @@ export const straight = (hand) => {
 };
 
 export const flush = (hand) => {
+  // Create set out of hand to filter unique suits
   const suits = new Set(hand.map((card) => card.suit));
   const handSorted = [...hand].sort((a, b) => {
     b.value - a.value;
   });
   const handStrength = calculateHandStrength(handSorted);
+  // If the hand contains one suit
   return suits.size === 1 ? handStrength : false;
 };
 
@@ -185,7 +200,8 @@ export const calculateHandStrength = (cards) => {
   return totalSum;
 };
 
-export function createDeck() {
+// Generates a deck of 52 cards
+export const createDeck = () => {
   const suits = ["Spades", "Hearts", "Diamonds", "Clubs"];
   const deck = [];
 
@@ -202,6 +218,7 @@ export function createDeck() {
   return deck;
 }
 
+// Compares all hand ranks to find winner or winners
 export const evaluateWinner = (players) => {
   // Sort players from highest hand rank to lowest
   const sortedPlayers = [...players].sort((a, b) => {
@@ -213,11 +230,13 @@ export const evaluateWinner = (players) => {
     (player) => player.rank.level === highestRank
   );
 
+  // If there is one winner
   if (highestHands.length === 1) {
     return [highestHands[0]];
   }
 
   const rankType = highestHands[0].rank.type;
+  // Check if the winner hands are the exact same 
   const isSame = highestHands.every(
     (hand) => hand.rank.tieBreaker === highestHands[0].rank.tieBreaker
   );
