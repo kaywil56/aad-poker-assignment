@@ -219,14 +219,20 @@ export const evaluateWinner = (players) => {
 
   const rankType = highestHands[0].rank.type;
   const isSame = highestHands.every(
-    (hand) => hand.rank.tieBreaker == highestHands[0].rank.tieBreaker
+    (hand) => hand.rank.tieBreaker === highestHands[0].rank.tieBreaker
   );
 
   if (rankType === "Royal Flush" || isSame) {
     return highestHands;
+  } else if (rankType === "High Card") {
+    highestHands.sort((a, b) => {
+      return b.rank.tieBreaker - a.rank.tieBreaker;
+    });
+
+    return [highestHands[0]];
   } else {
     highestHands.sort((a, b) => {
-      b.rank.tieBreaker - a.rank.tieBreaker;
+      return b.rank.tieBreaker - a.rank.tieBreaker;
     });
 
     return [highestHands[0]];

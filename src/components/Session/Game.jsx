@@ -18,13 +18,6 @@ const Game = ({ currentGameId, setCurrentGameId, game }) => {
     setError("")
     if (game.joinedPlayers.length < game.maxPlayers) {
       try {
-        // await joinGame(authContext.uid, gameId, false, authContext.email);
-        // await leaveGame(authContext.uid, currentGameId)
-
-        // if (currentGameId != 0) {
-        //   await leaveGame(authContext.uid, currentGameId);
-        // }
-
         const gameOwner = authContext.uid === game.owner
         await joinGame(authContext.uid, gameId, gameOwner, authContext.email);
         setCurrentGameId(gameId);
@@ -73,12 +66,12 @@ const Game = ({ currentGameId, setCurrentGameId, game }) => {
       </p>
       {/* toggle join and leave */}
       {!game.joinedPlayers.includes(authContext.uid) ? (
-        <button className="join-button" onClick={() => handleJoinGame(game.id)}>
+        <button className="game-btns" onClick={() => handleJoinGame(game.id)}>
           Join
         </button>
       ) : (
         <button
-          className="leave-button"
+          className="game-btns"
           onClick={() => handleLeaveGame(game.id)}
           s
         >
@@ -88,7 +81,7 @@ const Game = ({ currentGameId, setCurrentGameId, game }) => {
       {/* Only render the start button for the game owner */}
       {game.owner === authContext.uid && game.joinedPlayers.includes(authContext.uid) && (
         <button
-          className="start-button"
+          className="game-btns"
           onClick={() => handleStartGame(game.id)}
         >
           Start Game

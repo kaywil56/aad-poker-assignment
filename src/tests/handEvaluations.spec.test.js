@@ -512,3 +512,167 @@ describe("Hand evaluations tests", () => {
     expect(multiples(invalidOnePair, 2)).toBeFalsy();
   });
 });
+
+describe("Winner evaluation", () => {
+  test("High Card vs 1 Pair", () => {
+    const player1 = {
+      rank: {
+        level: 1,
+        type: "High Card",
+      },
+    };
+    const player2 = {
+      rank: {
+        level: 2,
+        type: "One Pair",
+      },
+    };
+    const winner = evaluateWinner([player1, player2]);
+    const winningRank = winner[0].rank.type;
+    expect(winningRank).toBe("One Pair");
+  });
+
+  test("1 Pair vs 2 Pair", () => {
+    const player1 = {
+      rank: {
+        level: 2,
+        type: "One Pair",
+      },
+    };
+    const player2 = {
+      rank: {
+        level: 3,
+        type: "Two Pair",
+      },
+    };
+    const winner = evaluateWinner([player1, player2]);
+    const winningRank = winner[0].rank.type;
+    expect(winningRank).toBe("Two Pair");
+  });
+
+  test("2 Pair vs 3 of a Kind", () => {
+    const player1 = {
+      rank: {
+        level: 3,
+        type: "Two Pair",
+      },
+    };
+    const player2 = {
+      rank: {
+        level: 4,
+        type: "Three of a Kind",
+      },
+    };
+    const winner = evaluateWinner([player1, player2]);
+    const winningRank = winner[0].rank.type;
+    expect(winningRank).toBe("Three of a Kind");
+  });
+
+  test("3 of a Kind vs Straight", () => {
+    const player1 = {
+      rank: {
+        level: 4,
+        type: "Three of a Kind",
+      },
+    };
+    const player2 = {
+      rank: {
+        level: 5,
+        type: "Straight",
+      },
+    };
+    const winner = evaluateWinner([player1, player2]);
+    const winningRank = winner[0].rank.type;
+    expect(winningRank).toBe("Straight");
+  });
+
+  test("Straight vs Flush", () => {
+    const player1 = {
+      rank: {
+        level: 5,
+        type: "Straight",
+      },
+    };
+    const player2 = {
+      rank: {
+        level: 6,
+        type: "Flush",
+      },
+    };
+    const winner = evaluateWinner([player1, player2]);
+    const winningRank = winner[0].rank.type;
+    expect(winningRank).toBe("Flush");
+  });
+
+  test("Flush vs Full House", () => {
+    const player1 = {
+      rank: {
+        level: 6,
+        type: "Flush",
+      },
+    };
+    const player2 = {
+      rank: {
+        level: 7,
+        type: "Full House",
+      },
+    };
+    const winner = evaluateWinner([player1, player2]);
+    const winningRank = winner[0].rank.type;
+    expect(winningRank).toBe("Full House");
+  });
+
+  test("Full House vs 4 of a Kind", () => {
+    const player1 = {
+      rank: {
+        level: 7,
+        type: "Full House",
+      },
+    };
+    const player2 = {
+      rank: {
+        level: 8,
+        type: "Four of a Kind",
+      },
+    };
+    const winner = evaluateWinner([player1, player2]);
+    const winningRank = winner[0].rank.type;
+    expect(winningRank).toBe("Four of a Kind");
+  });
+
+  test("4 of a Kind vs Straight Flush", () => {
+    const player1 = {
+      rank: {
+        level: 8,
+        type: "Four of a Kind",
+      },
+    };
+    const player2 = {
+      rank: {
+        level: 9,
+        type: "Straight Flush",
+      },
+    };
+    const winner = evaluateWinner([player1, player2]);
+    const winningRank = winner[0].rank.type;
+    expect(winningRank).toBe("Straight Flush");
+  });
+
+  test("Straight Flush vs Royal Flush", () => {
+    const player1 = {
+      rank: {
+        level: 9,
+        type: "Straight Flush",
+      },
+    };
+    const player2 = {
+      rank: {
+        level: 10,
+        type: "Royal Flush",
+      },
+    };
+    const winner = evaluateWinner([player1, player2]);
+    const winningRank = winner[0].rank.type;
+    expect(winningRank).toBe("Royal Flush");
+  });
+});

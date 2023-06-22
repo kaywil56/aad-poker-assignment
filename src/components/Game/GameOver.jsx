@@ -3,13 +3,12 @@
  * Displays winner or winners if it is a draw
  */
 
-
 import { useNavigate } from "react-router-dom";
 
 const GameOver = ({ winners }) => {
   const navigate = useNavigate();
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h1>{winners.length > 1 ? "Draw" : "Winner"}</h1>
       <ul>
         {winners.map((winner, idx) => {
@@ -20,7 +19,7 @@ const GameOver = ({ winners }) => {
           );
         })}
       </ul>
-      <button onClick={() => navigate("/session")}>Home</button>
+      <button className="game-btns" onClick={() => navigate("/session")}>Home</button>
     </div>
   );
 };

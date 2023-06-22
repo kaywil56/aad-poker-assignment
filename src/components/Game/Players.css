@@ -1,0 +1,14 @@
+.players-list{
+    list-style-type: none;
+}
+
+.players-item{
+    font-size: large;
+    font-weight: bold;
+    color: white;
+}
+
+.players-list-title{
+    color: white;
+    margin-left: 10px;
+}

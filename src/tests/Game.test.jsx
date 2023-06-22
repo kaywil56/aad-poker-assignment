@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, test, beforeEach, vi } from "vitest";
-import { joinGame, startGame } from "../firestoreFunctions";
+import { startGame, joinGame } from "../firestoreFunctions";
 import Game from "../components/Session/Game";
 import AuthContext from "../AuthContext";
 
@@ -11,14 +11,25 @@ describe("Game component test", () => {
 
   test("Currently joined game component renders properly", () => {
     // Pass the same id and currentGameId to get the joined version of the component
+    const mockGame = {
+      name: "John Doe's poker game night",
+      owner: "johndoe1",
+      id: "gid1",
+      joinedPlayers: ["user1"],
+    };
+    
+    const authContext = {
+      email: "testmail@mail.com",
+      uid: "user1",
+    };
     render(
-      <Game
-        name={"John Doe's poker game night"}
-        id={"gid1"}
-        owner={"johndoe1234"}
-        currentGameId={"gid1"}
-        setCurrentGameId={vi.fn()}
-      />
+      <AuthContext.Provider value={{ authContext }}>
+        <Game
+          game={mockGame}
+          currentGameId={"gid1"}
+          setCurrentGameId={vi.fn()}
+        />
+      </AuthContext.Provider>
     );
     expect(screen.getByText("Name:")).to.exist;
     expect(screen.getByText("John Doe's poker game night")).to.exist;
@@ -28,14 +39,14 @@ describe("Game component test", () => {
 
   test("Player has not joined Game component renders properly", () => {
     // Pass different id and currentGameId to get the unjoined version of the component
+    const mockGame = {
+      name: "John Doe's poker game night",
+      owner: "johndoe1",
+      id: "gid1",
+      joinedPlayers: [],
+    };
     render(
-      <Game
-        name={"John Doe's poker game night"}
-        id={"gid1"}
-        owner={"johndoe1234"}
-        currentGameId={"gid2"}
-        setCurrentGameId={vi.fn()}
-      />
+      <Game game={mockGame} currentGameId={"gid1"} setCurrentGameId={vi.fn()} />
     );
     expect(screen.getByText("Name:")).to.exist;
     expect(screen.getByText("John Doe's poker game night")).to.exist;
@@ -52,13 +63,19 @@ describe("Game component test", () => {
       uid: "uid1",
     };
 
+    const mockGame = {
+      name: "John Doe's poker game night",
+      owner: "johndoe1",
+      id: "gid1",
+      joinedPlayers: [],
+      maxPlayers: 3
+    };
+
     render(
       <AuthContext.Provider value={{ authContext }}>
         <Game
-          name={"John Doe's poker game night"}
-          id={"gid1"}
-          owner={"johndoe1234"}
-          currentGameId={"gid2"}
+          game={mockGame}
+          currentGameId={0}
           setCurrentGameId={vi.fn()}
         />
       </AuthContext.Provider>
@@ -81,16 +98,21 @@ describe("Game component test", () => {
   test("Start Game button visible for game owner", () => {
     const authContext = {
       email: "testmail@mail.com",
-      uid: "uid1",
+      uid: "johndoe1",
+    };
+
+    const mockGame = {
+      name: "John Doe's poker game night",
+      owner: "johndoe1",
+      id: "gid1",
+      joinedPlayers: ["johndoe1"],
     };
 
     render(
       <AuthContext.Provider value={{ authContext }}>
         <Game
-          name={"John Doe's poker game night"}
-          id={"gid1"}
-          owner={"uid1"}
-          currentGameId={"gid2"}
+          game={mockGame}
+          currentGameId={"gid1"}
           setCurrentGameId={vi.fn()}
         />
       </AuthContext.Provider>
@@ -105,13 +127,18 @@ describe("Game component test", () => {
       uid: "uid1",
     };
 
+    const mockGame = {
+      name: "John Doe's poker game night",
+      owner: "johndoe1",
+      id: "gid1",
+      joinedPlayers: ["uid1"],
+    };
+
     render(
       <AuthContext.Provider value={{ authContext }}>
         <Game
-          name={"John Doe's poker game night"}
-          id={"gid1"}
-          owner={"normalplayerid1"}
-          currentGameId={"gid2"}
+          game={mockGame}
+          currentGameId={"gid1"}
           setCurrentGameId={vi.fn()}
         />
       </AuthContext.Provider>
@@ -121,26 +148,33 @@ describe("Game component test", () => {
   });
 
   test("startGame get called with correct params", () => {
-    const authContext = {
-      email: "testmail@mail.com",
-      uid: "gameownerid1",
-    };
-
     vi.mock("../firestoreFunctions", () => {
       return { joinGame: vi.fn(), startGame: vi.fn() };
     });
 
+    const mockGame = {
+      name: "John Doe's poker game night",
+      owner: "johndoe1",
+      id: "gid1",
+      joinedPlayers: ["johndoe1", "userid1"],
+    };
+    
+    const authContext = {
+      email: "testmail@mail.com",
+      uid: "johndoe1",
+    };
+
     render(
       <AuthContext.Provider value={{ authContext }}>
         <Game
-          name={"John Doe's poker game night"}
-          id={"gid1"}
-          owner={"gameownerid1"}
-          currentGameId={"gid2"}
+          game={mockGame}
+          currentGameId={"gid1"}
           setCurrentGameId={vi.fn()}
         />
       </AuthContext.Provider>
     );
+
+    screen.debug()
 
     const startGameButton = screen.getByRole("button", {
       name: "Start Game",

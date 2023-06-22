@@ -66,7 +66,7 @@ const GameRoute = () => {
   ];
 
   const deck = createDeck();
-
+  
   const evaluateHand = () => {
     for (const handType of handTypes) {
       const tieBreaker = handType.evaluator([...hand]);
@@ -238,10 +238,10 @@ const GameRoute = () => {
               <p className="hand-rank">Hand Rank: {handRank.type}</p>
               <div className="hand-actions">
                 {selectedCards.length > 0 && !alreadySwapped && (
-                  <button onClick={handleCardSwap}>SWAP</button>
+                  <button className="game-btns" onClick={handleCardSwap}>SWAP</button>
                 )}
                 {/* render check button if it is the players turn */}
-                {isPlayerTurn() && <button onClick={check}>Check</button>}
+                {isPlayerTurn() && <button className="game-btns" onClick={check}>Check</button>}
               </div>
             </div>
             <Hand
