@@ -31,16 +31,19 @@ describe("FindSessions route component test", () => {
               name: "My test game",
               id: "gid1",
               owner: "jdoe1234",
+              joinedPlayers: ["jdoe1234"]
             },
             {
               name: "Poker",
               id: "gid2",
               owner: "jane1234",
+              joinedPlayers: ["jane1234"]
             },
             {
               name: "Game night",
               id: "gid3",
               owner: "fred1234",
+              joinedPlayers: ["fred1234"]
             },
           ];
           setGames(mockGames);
