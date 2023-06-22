@@ -10,16 +10,19 @@ describe("GameList component test", () => {
         name: "John's poker game",
         id: "gid1",
         owner: "john1234",
+        joinedPlayers: ["john1234"]
       },
       {
         name: "Janes's poker game",
         id: "gid2",
         owner: "jane1234",
+        joinedPlayers: ["jane1234"]
       },
       {
         name: "Poker game",
         id: "gid3",
         owner: "fred1234",
+        joinedPlayers: ["fred1234"]
       },
     ];
     const authContext = {
