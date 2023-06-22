@@ -20,7 +20,7 @@ const CreateGame = ({ setCurrentGameId }) => {
     e.preventDefault();
     try {
       const gameId = await createGame(gameName, maxPlayers, authContext.uid);
-      await joinGame(authContext.uid, gameId, true, authContext.email);
+      // await joinGame(authContext.uid, gameId, true, authContext.email);
       setCurrentGameId(gameId);
     } catch (e) {
       setError("Something went wrong");

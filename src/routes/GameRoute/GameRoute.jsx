@@ -131,7 +131,6 @@ const GameRoute = () => {
     }
   }, [players]);
 
-
   // Check if all players have played
   useEffect(() => {
     const playerCount = location.state.playerAmount;
@@ -144,7 +143,6 @@ const GameRoute = () => {
       }
     }
   }, [players]);
-
 
   // Check if its the current players turn
   const isPlayerTurn = () => {
@@ -177,7 +175,6 @@ const GameRoute = () => {
       setAlreadySwapped(true);
     }
   };
-
 
   // get a specified amount of cards that havent been dealt yet
   const getNewCards = (amount) => {

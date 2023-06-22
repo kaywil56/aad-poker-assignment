@@ -8,6 +8,7 @@ import {
   straightFlush,
   royalFlush,
   calculateHandStrength,
+  evaluateWinner,
   createDeck,
 } from "../handEvaluations";
 
