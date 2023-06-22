@@ -211,7 +211,7 @@ describe("Hand evaluations tests", () => {
       },
       {
         suit: "Clubs",
-        value: 5,
+        value: 4,
       },
       {
         suit: "Diamonds",

@@ -1,8 +1,30 @@
 export const fullHouse = (hand) => {
-  const tieBreaker = multiples(hand, 3);
-  if (multiples(hand, 2) && tieBreaker) {
-    return tieBreaker;
+  const valueCounts = {};
+  
+  for (let i = 0; i < hand.length; i++) {
+    const value = hand[i].value;
+    if (valueCounts[value]) {
+      valueCounts[value] += 1;
+    } else {
+      valueCounts[value] = 1;
+    }
   }
+
+  let threeOfAKindValue = null;
+  let pairValue = null;
+
+  for (const value in valueCounts) {
+    if (valueCounts[value] === 3) {
+      threeOfAKindValue = parseInt(value, 10);
+    } else if (valueCounts[value] === 2) {
+      pairValue = parseInt(value, 10);
+    }
+  }
+
+  if (threeOfAKindValue !== null && pairValue !== null) {
+    return threeOfAKindValue;
+  }
+  
   return false;
 };
 
@@ -118,7 +140,6 @@ export const straight = (hand) => {
 
   return uniqueValues[uniqueValues.length - 1];
 };
-
 
 export const flush = (hand) => {
   const suits = new Set(hand.map((card) => card.suit));
