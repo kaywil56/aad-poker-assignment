@@ -30,6 +30,7 @@ import AuthContext from "../../AuthContext";
 import GameOver from "../../components/Game/GameOver";
 import "./GameRoute.css";
 import Hand from "../../components/Game/Hand";
+import { useOutletContext } from "react-router-dom";
 
 const GameRoute = () => {
   const { authContext } = useContext(AuthContext);
@@ -66,7 +67,8 @@ const GameRoute = () => {
   ];
 
   const deck = createDeck();
-  
+
+  // Iterate through hand ranks and stop when the hand matches. finally set hand to high card
   const evaluateHand = () => {
     for (const handType of handTypes) {
       const tieBreaker = handType.evaluator([...hand]);
@@ -170,8 +172,9 @@ const GameRoute = () => {
       const newCards = getNewCards(selectedCards.length);
       const updatedHand = [...handWithCardsRemoved, ...newCards];
 
-      await updateHand(location.state.gameId, authContext.uid, updatedHand);
       await discardCards(location.state.gameId, authContext.uid, selectedCards);
+      await updateHand(location.state.gameId, authContext.uid, updatedHand);
+
       setAlreadySwapped(true);
     }
   };
@@ -238,10 +241,16 @@ const GameRoute = () => {
               <p className="hand-rank">Hand Rank: {handRank.type}</p>
               <div className="hand-actions">
                 {selectedCards.length > 0 && !alreadySwapped && (
-                  <button className="game-btns" onClick={handleCardSwap}>SWAP</button>
+                  <button className="game-btns" onClick={handleCardSwap}>
+                    SWAP
+                  </button>
                 )}
                 {/* render check button if it is the players turn */}
-                {isPlayerTurn() && <button className="game-btns" onClick={check}>Check</button>}
+                {isPlayerTurn() && (
+                  <button className="game-btns" onClick={check}>
+                    Check
+                  </button>
+                )}
               </div>
             </div>
             <Hand

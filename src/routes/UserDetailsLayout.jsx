@@ -11,8 +11,8 @@ import "./UserDetailsLayout.css";
 
 const UserDetailsLayout = () => {
   const auth = getAuth();
-
   const { authContext } = useContext(AuthContext);
+
   return (
     <div className="layout-container">
       <nav>
