@@ -82,42 +82,6 @@ export const twoPair = (hand) => {
   return false;
 };
 
-// export const straight = (hand) => {
-//   // Use a set to extract unique values only
-//   let uniqueValues = new Set(hand.map((card) => card.value));
-
-//   // Impossible to have a straight with less than 5 unique values
-//   if (uniqueValues.size < 5) {
-//     return false;
-//   }
-
-//   // Convert to array
-//   uniqueValues = [...uniqueValues];
-
-//   const lowAceStraightValues = [14, 2, 3, 4, 5];
-
-//   const hasLowAceStraight = lowAceStraightValues.every((value) => {
-//     return uniqueValues.includes(value);
-//   });
-
-//   if (hasLowAceStraight) {
-//     return 5;
-//   }
-
-//   uniqueValues.sort((a, b) => {
-//     return b - a;
-//   });
-
-//   // Iterate over unique values, checking if the current value
-//   // is is equal to the previous value when you add 1
-//   for (let i = 1; i < uniqueValues.length; i++) {
-//     if (uniqueValues[i] !== uniqueValues[i - 1] + 1) {
-//       return false;
-//     }
-//   }
-//   return uniqueValues[0];
-// };
-
 export const straight = (hand) => {
   // Use a set to extract unique values only
   let uniqueValues = new Set(hand.map((card) => card.value));
@@ -216,3 +180,34 @@ export function createDeck() {
 
   return deck;
 }
+
+export const evaluateWinner = (players) => {
+  // Sort players from highest hand rank to lowest
+  const sortedPlayers = [...players].sort((a, b) => {
+    return b.rank.level - a.rank.level;
+  });
+  const highestRank = sortedPlayers[0].rank.level;
+  // Filter for players that also have the highest hand rank
+  const highestHands = players.filter(
+    (player) => player.rank.level === highestRank
+  );
+
+  if (highestHands.length === 1) {
+    return [highestHands[0]];
+  }
+
+  const rankType = highestHands[0].rank.type;
+  const isSame = highestHands.every(
+    (hand) => hand.rank.tieBreaker == highestHands[0].rank.tieBreaker
+  );
+
+  if (rankType === "Royal Flush" || isSame) {
+    return highestHands;
+  } else {
+    highestHands.sort((a, b) => {
+      b.rank.tieBreaker - a.rank.tieBreaker;
+    });
+
+    return [highestHands[0]];
+  }
+};

@@ -1,21 +1,34 @@
+/**
+ * CreateGame.jsx
+ *
+ * This component renders the form for submitting a game.
+ */
+
 import { createGame, joinGame } from "../../firestoreFunctions";
 import { useState, useContext } from "react";
 import AuthContext from "../../AuthContext";
-import './CreateGame.css'
+import "./CreateGame.css";
 
 const CreateGame = ({ setCurrentGameId }) => {
   const [gameName, setGameName] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(2);
+  const [error, setError] = useState("");
   const { authContext } = useContext(AuthContext);
 
+  // Attempt to create a game and auto join as game owner  
   const handleCreateGame = async (e) => {
     e.preventDefault();
-    const gameId = await createGame(gameName, maxPlayers, authContext.uid);
-    joinGame(authContext.uid, gameId, true, authContext.email);
-    setCurrentGameId(gameId);
-    // Reset states
-    setMaxPlayers(2);
-    setGameName("");
+    try {
+      const gameId = await createGame(gameName, maxPlayers, authContext.uid);
+      await joinGame(authContext.uid, gameId, true, authContext.email);
+      setCurrentGameId(gameId);
+    } catch (e) {
+      setError("Something went wrong");
+    } finally {
+      // Reset states
+      setMaxPlayers(2);
+      setGameName("");
+    }
   };
 
   return (
@@ -48,6 +61,7 @@ const CreateGame = ({ setCurrentGameId }) => {
           required
         />
       </div>
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <button type="submit" className="create-game-form-button">
         Create Game
       </button>

@@ -1,3 +1,8 @@
+/**
+ * GameRoute.jsx
+ * This component renders the route for the current game instance
+ */
+
 import { useContext, useEffect, useState } from "react";
 import {
   updateHandRank,
@@ -17,6 +22,7 @@ import {
   royalFlush,
   calculateHandStrength,
   createDeck,
+  evaluateWinner,
 } from "../../handEvaluations";
 import Players from "../../components/Game/Players";
 import { Navigate, useLocation } from "react-router-dom";
@@ -80,11 +86,13 @@ const GameRoute = () => {
     setHandRank({ type: "High Card", level: 1, tieBreaker: handStrength });
   };
 
+  // End round
   const check = async () => {
     await updateHandRank(location.state.gameId, authContext.uid, handRank);
     handleSetNextPlayerTurn();
   };
 
+  // Set the next player to be the next index in the players array
   const handleSetNextPlayerTurn = () => {
     const currentPlayerIdx = players.findIndex(
       (player) => player.id === authContext.uid
@@ -96,42 +104,12 @@ const GameRoute = () => {
     setNextPlayerTurn(location.state.gameId, authContext.uid, nextPlayer.id);
   };
 
-  const evaluateWinner = () => {
-    // Sort players from highest hand rank to lowest
-    const sortedPlayers = [...players].sort((a, b) => {
-      return b.rank.level - a.rank.level;
-    });
-    const highestRank = sortedPlayers[0].rank.level;
-    // Filter for players that also have the highest hand rank
-    const highestHands = players.filter(
-      (player) => player.rank.level === highestRank
-    );
-
-    if (highestHands.length === 1) {
-      return [highestHands[0]];
-    }
-
-    const rankType = highestHands[0].rank.type;
-    const isSame = highestHands.every(
-      (hand) => hand.rank.tieBreaker == highestHands[0].rank.tieBreaker
-    );
-
-    if (rankType === "Royal Flush" || isSame) {
-      return highestHands;
-    } else {
-      highestHands.sort((a, b) => {
-        b.rank.tieBreaker - a.rank.tieBreaker;
-      });
-
-      return [highestHands[0]];
-    }
-  };
-
+  // Deal initial hands and mount snapshot listener
   useEffect(() => {
-    if (authContext.uid === location.state.owner) {
-      dealPlayersInitialCards([...deck], location.state.gameId);
-    }
     const get = async () => {
+      if (authContext.uid === location.state.owner) {
+        await dealPlayersInitialCards([...deck], location.state.gameId);
+      }
       await getPlayers(
         location.state.gameId,
         setPlayers,
@@ -142,6 +120,7 @@ const GameRoute = () => {
     get();
   }, []);
 
+  // Evaluate the players hand when it gets updated
   useEffect(() => {
     const currentPlayer = players.find(
       (player) => player?.playerId === authContext.uid
@@ -152,6 +131,8 @@ const GameRoute = () => {
     }
   }, [players]);
 
+
+  // Check if all players have played
   useEffect(() => {
     const playerCount = location.state.playerAmount;
     if (players.length == playerCount) {
@@ -159,12 +140,13 @@ const GameRoute = () => {
         (player) => player?.rank !== undefined
       );
       if (allPlayersHavePlayed) {
-        setWinner(evaluateWinner());
-        console.log(winner)
+        setWinner(evaluateWinner(players));
       }
     }
   }, [players]);
 
+
+  // Check if its the current players turn
   const isPlayerTurn = () => {
     const currentPlayer = players.find(
       (player) => player.playerId === authContext.uid
@@ -176,6 +158,7 @@ const GameRoute = () => {
     return <Navigate to="/" />;
   }
 
+  // Remove selected cards from hand and update with new ones
   const handleCardSwap = async () => {
     if (!alreadySwapped) {
       // Remove cards from hand that are in the selected cards array
@@ -190,11 +173,13 @@ const GameRoute = () => {
       const updatedHand = [...handWithCardsRemoved, ...newCards];
 
       await updateHand(location.state.gameId, authContext.uid, updatedHand);
-      await discardCards(location.state.gameId, authContext.uid, selectedCards)
+      await discardCards(location.state.gameId, authContext.uid, selectedCards);
       setAlreadySwapped(true);
     }
   };
 
+
+  // get a specified amount of cards that havent been dealt yet
   const getNewCards = (amount) => {
     const newCards = [];
     // Combine all players discard piles and hands to find all dealt cards
@@ -220,6 +205,7 @@ const GameRoute = () => {
     return newCards;
   };
 
+  // updates the selected card state with a new card
   const updateSelectedCards = (card) => {
     if (!alreadySwapped && isPlayerTurn()) {
       let isSelected = checkIfSelected(card);
@@ -234,6 +220,7 @@ const GameRoute = () => {
     }
   };
 
+  // Takes in a card and returns if it has been selected
   const checkIfSelected = (card) => {
     if (isPlayerTurn()) {
       const isSelected = selectedCards.some(
@@ -256,6 +243,7 @@ const GameRoute = () => {
                 {selectedCards.length > 0 && !alreadySwapped && (
                   <button onClick={handleCardSwap}>SWAP</button>
                 )}
+                {/* render check button if it is the players turn */}
                 {isPlayerTurn() && <button onClick={check}>Check</button>}
               </div>
             </div>

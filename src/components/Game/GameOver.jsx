@@ -1,3 +1,9 @@
+/**
+ * GameOver.jsx
+ * Displays winner or winners if it is a draw
+ */
+
+
 import { useNavigate } from "react-router-dom";
 
 const GameOver = ({ winners }) => {

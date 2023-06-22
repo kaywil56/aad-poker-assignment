@@ -1,3 +1,8 @@
+/**
+ * FindSessionsRoute.jsx
+ * This component renders the route for joining and creating games
+ */
+
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../AuthContext";
 import { Navigate } from "react-router-dom";
@@ -12,7 +17,10 @@ const FindSessionsRoute = () => {
   const [games, setGames] = useState([]);
 
   useEffect(() => {
-    getGames(setGames);
+    const get = async () => {
+      await getGames(setGames);
+    };
+    get();
   }, []);
 
   // Protect route
@@ -22,7 +30,7 @@ const FindSessionsRoute = () => {
 
   const currentGame = games.find((game) => game.id === currentGameId);
 
-  // If the game that the player currently belongs to is started
+  // If the game that the player currently belongs to is started, redirect them to the game route
   if (currentGame?.started) {
     return (
       <Navigate

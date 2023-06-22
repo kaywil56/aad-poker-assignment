@@ -1,3 +1,8 @@
+/**
+ * UserDetailsLayout.jsx
+ * This component is a layout that is rendered with GameRoute and FindSessionsRoute
+ */
+
 import { Outlet } from "react-router-dom";
 import { useContext } from "react";
 import AuthContext from "../AuthContext";

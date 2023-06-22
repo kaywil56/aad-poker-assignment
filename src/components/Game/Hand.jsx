@@ -1,6 +1,13 @@
+/**
+ * Hand.jsx
+ * This component renders the players current hand
+ */
+
+
 import "./Hand.css";
 
 const Hand = ({ cards, updateSelectedCards, checkIfSelected }) => {
+  // Takes a face card number value and returns its string alternative 
   const convertToFaceValue = (value) => {
     if (value === 14) {
       return "A";
@@ -14,7 +21,8 @@ const Hand = ({ cards, updateSelectedCards, checkIfSelected }) => {
       return value;
     }
   };
-
+    
+  // Takes a suit string value and returns its symbol alternative 
   const convertToSymbol = (value) => {
     if (value === "Spades") {
       return "♠";

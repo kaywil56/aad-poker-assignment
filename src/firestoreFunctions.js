@@ -10,7 +10,7 @@ import {
   getDocs,
   arrayUnion,
   arrayRemove,
-  deleteDoc
+  deleteDoc,
 } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
@@ -175,7 +175,7 @@ export const setNextPlayerTurn = async (gameId, playerId, nextPlayerId) => {
 export const dealPlayersInitialCards = async (deck, gameId) => {
   const batch = writeBatch(firestore);
 
-  const shuffledDeck = deck.sort(() => Math.random() - 0.5);
+  const shuffledDeck = shuffleDeck(deck);
 
   const playersQuery = collection(firestore, "games", gameId, "players");
   const playersSnapshot = await getDocs(playersQuery);
@@ -187,6 +187,15 @@ export const dealPlayersInitialCards = async (deck, gameId) => {
 
   await batch.commit();
 };
+
+function shuffleDeck(deck) {
+  const shuffledDeck = [...deck];
+  for (let i = shuffledDeck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]];
+  }
+  return shuffledDeck;
+}
 
 export const login = async (auth, email, password) => {
   await signInWithEmailAndPassword(auth, email, password);

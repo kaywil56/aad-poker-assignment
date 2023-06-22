@@ -1,3 +1,8 @@
+/**
+ * LoginRegisterRoute.jsx
+ * This component renders the route for Login and register
+ */
+
 import { getAuth } from "firebase/auth";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -18,6 +23,7 @@ const LoginRegisterRoute = ({
     password: "",
   });
 
+  // Set a loader and attempt to login or rgister 
   const handleLoginRegister = async (e) => {
     e.preventDefault();
     setIsLoading(true);
